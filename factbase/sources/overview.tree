@@ -12,7 +12,7 @@
 		Проект_распространения_торгового_города_Таганрога year:1863
 		План_города_1908 year:1908
 	карты_электронные
-		YandexMaps url:maps.yandex.ru
+		YandexMaps short-id:ym url:maps.yandex.ru
 		MapPoi url:mappoi.ru
 	книги
 		Были-небыли_Таганрога author:Пащенко_Игорь_Георгиевич year:2012
@@ -24,6 +24,7 @@
 		Материалы_географии_и_статистики__Екатеринославская_губерния author:Павлович year:1862 
 		По_старой_Греческой author:Гаврюшкин_Олег_Павлович year:2003
 	реестры
+		Dominfo short-id:di url:dominfo.ru/uk/region/rostovskaya-oblast/taganrog
 		ОКН_Таганрога url:old.donland.ru/?pageid=89581
 	сайты
 		Исторический_Таганрог url:sites.google.com/site/istoriceskijtaganrog site-owner:Пучкарев_Валерий
