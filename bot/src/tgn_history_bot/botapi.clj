@@ -4,7 +4,7 @@
             [clj-http.client :as http]))
 
 (defn send-text [text chat-id]
-  ; (println (type chat-id))
+  (println (str base-url "/sendMessage") chat-id text)
   (http/post
     (str base-url "/sendMessage")
     {:form-params {

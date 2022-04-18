@@ -30,7 +30,9 @@
           ; (println "message = " message)
           (println "text = " text)
           (if answer
-            (tb/send-text answer chat-id)
+            (do
+              (println "answer = " answer "chat-id = " chat-id)
+              (tb/send-text answer chat-id))
             (println (format "Couldn't process a line: %s" text)))))
   (route/not-found "<h1>Page not found</h1>"))
 
