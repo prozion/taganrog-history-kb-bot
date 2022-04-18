@@ -8,7 +8,7 @@
   ))
 
 (defn process-command [text]
-  (case (get-command text)
+  (case (tb/get-command text)
     "start" "Дорогой друг! 1101110!"
     "help" "Доступны такие команды: /start, /help, /building"
     "building" (tb/get-command-body)
