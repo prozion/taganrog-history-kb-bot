@@ -29,11 +29,17 @@
           ; (println "body = " body)
           ; (println "message = " message)
           (println "text = " text)
-          (if answer
-            (do
-              (println "answer = " answer "chat-id = " chat-id)
-              (tb/send-text answer chat-id))
-            (println (format "Couldn't process a line: %s" text)))))
+          (cond
+            (clojure.string/blank? answer)
+              (do
+                (println "blank answer")
+                (tb/send-text "error: blank result" chat-id))
+            answer
+              (do
+                (println "answer = " answer "chat-id = " chat-id)
+                (tb/send-text answer chat-id))
+            :else
+              (println (format "Couldn't process a line: %s" text)))))
   (route/not-found "<h1>Page not found</h1>"))
 
 ; (defn handler [request]
