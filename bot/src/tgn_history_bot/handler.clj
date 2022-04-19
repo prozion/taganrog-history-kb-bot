@@ -9,7 +9,7 @@
   ))
 
 (defn process-command [text]
-  (println 11111 text)
+  (println "text = '" text "'")
   (case (tb/get-command text)
     "start" "Дорогой друг! 1101110!"
     "help" "Доступны такие команды: /start, /help, /building"
