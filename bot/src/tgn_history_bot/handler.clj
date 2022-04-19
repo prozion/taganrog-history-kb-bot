@@ -15,7 +15,7 @@
     "help" "Доступны такие команды: /start, /help, /building"
     "building" (tb/get-command-body text)
     "streets" (kb/get-streets)
-    :else nil))
+    nil))
 
 ; (defn print-streets []
 ;   (kb/get-streets))
