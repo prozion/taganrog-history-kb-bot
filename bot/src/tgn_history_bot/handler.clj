@@ -27,6 +27,7 @@
   (POST "/tgn-history"
         request
         (let [body (cheshire/parse-string (slurp (:body request)) true)
+              _ (println 22222 body)
               message (:message body)
               chat-id (get-in message [:chat :id])
               text (:text message)
