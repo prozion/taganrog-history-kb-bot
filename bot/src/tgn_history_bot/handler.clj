@@ -43,7 +43,7 @@
             answer
               (do
                 (println "answer = " answer "chat-id = " chat-id)
-                (tb/send-text answer chat-id))
+                (tb/send-text answer chat-id 'markdown))
             :else
               (println (format "Couldn't process a line: %s" text)))))
   (route/not-found "<h1>Page not found</h1>"))
