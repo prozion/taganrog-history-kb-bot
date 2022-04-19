@@ -15,6 +15,9 @@
 (defn get-command [text]
   (some-> (re-seq #"/(\w+)" text) first second))
 
+(defn get-message [body]
+  (or (:message body) (:edited_message body)))
+
 (defn get-command-body [text]
   (and
     (get-command text)
