@@ -5,6 +5,7 @@
             [compojure.route :as route]
             [cheshire.core :as cheshire]
             [tgn-history-bot.botapi :as tb]
+            [tgn-history-bot.kb :as kb]
   ))
 
 (defn process-command [text]
@@ -12,7 +13,11 @@
     "start" "Дорогой друг! 1101110!"
     "help" "Доступны такие команды: /start, /help, /building"
     "building" (tb/get-command-body text)
+    "streets" (kb/get-streets)
     :else nil))
+
+; (defn print-streets []
+;   (kb/get-streets))
 
 (defroutes app
   (GET "/tgn-history"

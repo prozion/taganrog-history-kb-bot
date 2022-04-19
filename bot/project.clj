@@ -12,6 +12,7 @@
                  [ring/ring-jetty-adapter "1.7.1"]
                  [compojure "1.6.2"]
                  [cheshire "5.10.2"]
+                 [org.clojars.prozion/clj-tabtree "0.0.4"]
                 ]
 
   :plugins [
