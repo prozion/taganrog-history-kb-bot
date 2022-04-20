@@ -15,7 +15,7 @@
     (println "text = '" text "'")
     (case command
       "start" (tb/send-text "Дорогой друг! 1101110!" chat-id)
-      "help" (tb/send-text "Доступны такие команды: /start, /help, /building" chat-id)
+      "help" (tb/send-text "Доступны такие команды: /start, /help, /list_modern_streets" chat-id)
       "building" (let [body (tb/get-command-body text)]
                     (tb/send-text body chat-id))
       "list_modern_streets" (tb/send-text (kb/get-modern-streets) chat-id)
