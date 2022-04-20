@@ -8,14 +8,21 @@
             [tgn-history-bot.kb :as kb]
   ))
 
-(defn process-command [text]
-  (println "text = '" text "'")
-  (case (tb/get-command text)
-    "start" "Дорогой друг! 1101110!"
-    "help" "Доступны такие команды: /start, /help, /building"
-    "building" (tb/get-command-body text)
-    "streets" (kb/get-streets)
-    nil))
+(defn process-command [message]
+  (let [chat-id (get-in message [:chat :id])
+        text (:text message)
+        command (tb/get-command text)]
+    (println "text = '" text "'")
+    (case command
+      "start" (tb/send-text "Дорогой друг! 1101110!" chat-id)
+      "help" (tb/send-text "Доступны такие команды: /start, /help, /building" chat-id)
+      "building" (let [body (tb/get-command-body text)]
+                    (tb/send-text body chat-id))
+      "list-modern-streets" (tb/send-text (kb/get-modern-streets) chat-id :markdown)
+      "list-old-streets" (tb/send-text (kb/get-old-streets) chat-id :markdown)
+      (do
+        (println (format "Couldn't process a line: '%s'" text)))
+      )))
 
 ; (defn print-streets []
 ;   (kb/get-streets))
@@ -27,25 +34,9 @@
   (POST "/tgn-history"
         request
         (let [body (cheshire/parse-string (slurp (:body request)) true)
-              message (tb/get-message body)
-              chat-id (get-in message [:chat :id])
-              text (:text message)
-              answer (process-command text)]
-          ; (println "request = " request)
-          ; (println "body = " body)
-          ; (println "message = " message)
-          (println "text = " text)
-          (cond
-            (clojure.string/blank? answer)
-              (do
-                (println "blank answer")
-                (tb/send-text "error: blank result" chat-id))
-            answer
-              (do
-                (println "answer = " answer "chat-id = " chat-id)
-                (tb/send-text answer chat-id 'markdown))
-            :else
-              (println (format "Couldn't process a line: %s" text)))))
+              message (tb/get-message body)]
+          (process-command message)
+          true))
   (route/not-found "<h1>Page not found</h1>"))
 
 ; (defn handler [request]

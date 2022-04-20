@@ -3,22 +3,24 @@
     [clojure.string :as s]
     [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]))
 
-(defn id->name [item]
+(defn id->name [id]
+  (-> id
+      name
+      (s/replace "_" " ")))
+
+(defn item->name [item]
   (or (:name item)
       (some-> item
               :__id
-              name
-              (s/replace "_" " "))
+              id->name)
       (str item)))
 
-(defn get-streets []
+(defn get-streets [select-fn]
   (let [streets (tabtree/parse-tab-tree "../factbase/streets.tree")
-        _ (println 1111)
-        street-names (->>
-                        streets
-                        vals
-                        (filter #(or (:start %) (:end %)))
-                        (map id->name))
-        _ (println 2222 street-names)
-        street-names-printing-view (s/join "/n" street-names)]
-    street-names-printing-view))
+        filtered-street-ids (select-fn streets)
+        street-names (map id->name filtered-street-ids)]
+        ; _ (println 2222 street-names)
+    (s/join "\n" street-names)))
+
+(def get-modern-streets #(get-streets (fn [streets] (get-in streets [:улицы :__children]))))
+(def get-old-streets get-modern-streets)
