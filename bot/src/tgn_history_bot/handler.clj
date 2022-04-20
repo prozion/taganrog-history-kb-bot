@@ -18,8 +18,7 @@
       "help" (tb/send-text "Доступны такие команды: /start, /help, /building" chat-id)
       "building" (let [body (tb/get-command-body text)]
                     (tb/send-text body chat-id))
-      "list-modern-streets" (tb/send-text (kb/get-modern-streets) chat-id :markdown)
-      "list-old-streets" (tb/send-text (kb/get-old-streets) chat-id :markdown)
+      "list_modern_streets" (tb/send-text (kb/get-modern-streets) chat-id)
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))
@@ -36,7 +35,7 @@
         (let [body (cheshire/parse-string (slurp (:body request)) true)
               message (tb/get-message body)]
           (process-command message)
-          true))
+          "Ok"))
   (route/not-found "<h1>Page not found</h1>"))
 
 ; (defn handler [request]
