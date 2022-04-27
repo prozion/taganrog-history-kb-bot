@@ -42,7 +42,13 @@
 
   (defn init-db [tree-file-path]
     (let [tree-file-name (-> tree-file-path (s/split #"/") last (s/split #".") first)
-          _ (println 1111111 tree-file-path (-> tree-file-path (s/split #"/")) (-> tree-file-path (s/split #"/") last (s/split #".")))
+          _ (println
+              1111111
+              tree-file-path
+              (-> tree-file-path (s/split #"/"))
+              (-> tree-file-path (s/split #"/") last)
+              (-> tree-file-path (s/split #"/") (s/split #"."))
+              (-> tree-file-path (s/split #"/") (s/split #".") first))
           rdf-file-path (format "output/%s.ttl" tree-file-name)]
       (tree-file->rdf-file tree-file-path rdf-file-path)
       (load-rdf rdf-file-path)))
