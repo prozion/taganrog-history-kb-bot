@@ -47,7 +47,7 @@
 
   (def find-blocks (make-query-func
                     "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                     prefix : <https://purl.org/denis-shirshov#>
+                     prefix : <https://purl.org/taganrog#>
                      prefix owl: <http://www.w3.org/2002/07/owl#>
                      SELECT *
                      WHERE {?%s :has_building :%s.}
