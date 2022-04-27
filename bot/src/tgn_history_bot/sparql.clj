@@ -15,7 +15,6 @@
 
   (defn tree-file->rdf-file [tree-file rdf-file]
     (let [tabtree (tabtree/parse-tab-tree tree-file)]
-      (println "tree-file->rdf-file: tabtree = " tabtree)
       (aux/write-to-file
         rdf-file
         (rdf/to-rdf
@@ -41,14 +40,7 @@
         (map queried-parameter))))
 
   (defn init-db [tree-file-path]
-    (let [tree-file-name (-> tree-file-path (s/split #"/") last (s/split #".") first)
-          _ (println
-              1111111
-              tree-file-path
-              (-> tree-file-path (s/split #"/"))
-              (-> tree-file-path (s/split #"/") last)
-              (-> tree-file-path (s/split #"/") last (s/split #"."))
-              (-> tree-file-path (s/split #"/") last (s/split #".") first))
+    (let [tree-file-name (-> tree-file-path (s/split #"/") last (s/split #"\.") first)
           rdf-file-path (format "output/%s.ttl" tree-file-name)]
       (tree-file->rdf-file tree-file-path rdf-file-path)
       (load-rdf rdf-file-path)))
