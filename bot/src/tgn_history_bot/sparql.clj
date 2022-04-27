@@ -47,8 +47,8 @@
               tree-file-path
               (-> tree-file-path (s/split #"/"))
               (-> tree-file-path (s/split #"/") last)
-              (-> tree-file-path (s/split #"/") (s/split #"."))
-              (-> tree-file-path (s/split #"/") (s/split #".") first))
+              (-> tree-file-path (s/split #"/") last (s/split #"."))
+              (-> tree-file-path (s/split #"/") last (s/split #".") first))
           rdf-file-path (format "output/%s.ttl" tree-file-name)]
       (tree-file->rdf-file tree-file-path rdf-file-path)
       (load-rdf rdf-file-path)))
