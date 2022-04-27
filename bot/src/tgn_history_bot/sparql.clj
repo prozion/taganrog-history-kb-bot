@@ -15,6 +15,7 @@
 
   (defn tree-file->rdf-file [tree-file rdf-file]
     (let [tabtree (tabtree/parse-tab-tree tree-file)]
+      (println "tree-file->rdf-file: tabtree = " tabtree)
       (aux/write-to-file
         rdf-file
         (rdf/to-rdf

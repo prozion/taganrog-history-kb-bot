@@ -21,9 +21,13 @@
       ; "building" (let [body (tb/get-command-body text)]
       ;               (tb/send-text body chat-id))
       "list_modern_streets" (tb/send-text (kb/get-modern-streets) chat-id)
+      "init_kb" (do
+                  (sparql/init-db "../../factbase/houses/blocks.tree")
+                  (tb/send-text "База знаний проинициализована." chat-id))
       "which_block" (let [ans (or
                                 (some-> text tb/get-command-body city/normalize-address sparql/find-blocks first)
                                 "Для данного адреса квартал не определен")]
+                      (println (some-> text tb/get-command-body city/normalize-address))
                       (tb/send-text ans chat-id))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
