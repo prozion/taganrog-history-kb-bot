@@ -1,0 +1,78 @@
+@prefix : <https://purl.org/denis-shirshov#>
+@prefix dbpedia: <http://dbpedia.org/ontology/>
+@prefix rdf: <https://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+
+:Carthagen
+  :start -814;
+  rdf:type dbpedia:City.
+
+:Moscow
+  :start 1147;
+  :metro-stations :Таганская, :Баррикадная, :Речной_Вокзал;
+  :feature "RUNNING";
+  rdf:type dbpedia:City.
+
+:neverland
+  rdf:type :Country;
+  :includes :20-й_город_Ёлки.
+
+:Rostov-on-Don
+  :start 1749;
+  :feature "RUNNING";
+  rdf:type dbpedia:City.
+
+:africa
+  rdf:type :Continent;
+  :includes :egypt, :tunisia.
+
+:sweden
+  rdf:type :Country;
+  :includes :Stockholm.
+
+:europe
+  rdf:type :Continent;
+  :includes :russia, :norway, :sweden.
+
+:egypt
+  rdf:type :Country;
+  :includes :Alexandria.
+
+:Taganrog
+  :start 1695;
+  :it-companies :Arcadia, :Oggetto, :Dunice, :LodossTeam;
+  :feature "RUNNING";
+  rdf:type dbpedia:City.
+
+:Stockholm
+  :start 1252;
+  :regions "Gamlastan";
+  :rem "The city known for ABBA and its beautiful rocky metro";
+  rdf:type dbpedia:City.
+
+:Oslo
+  rdf:type dbpedia:City;
+  :start 1050;
+  rdf:type dbpedia:City.
+
+:20-й_город_Ёлки
+  :gold 100500;
+  rdf:type dbpedia:City.
+
+:Alexandria
+  :start :BC-331;
+  rdf:type dbpedia:City.
+
+:norway
+  rdf:type :Country;
+  :includes :Oslo.
+
+:russia
+  :feature "RUNNING";
+  rdf:type :Country;
+  :includes :Moscow, :Rostov-on-Don, :Taganrog.
+
+:tunisia
+  rdf:type :Country;
+  :includes :Carthagen.
+

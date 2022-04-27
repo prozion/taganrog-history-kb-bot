@@ -6,6 +6,8 @@
             [cheshire.core :as cheshire]
             [tgn-history-bot.botapi :as tb]
             [tgn-history-bot.kb :as kb]
+            [tgn-history-bot.sparql :as sparql]
+            [tgn-history-bot.city :as city]
   ))
 
 (defn process-command [message]
@@ -19,6 +21,10 @@
       ; "building" (let [body (tb/get-command-body text)]
       ;               (tb/send-text body chat-id))
       "list_modern_streets" (tb/send-text (kb/get-modern-streets) chat-id)
+      "which_block" (let [ans (or
+                                (some-> text tb/get-command-body city/normalize-address sparql/find-blocks first)
+                                "Для данного адреса квартал не определен")]
+                      (tb/send-text ans chat-id))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))

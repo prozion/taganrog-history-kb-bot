@@ -12,7 +12,12 @@
                  [ring/ring-jetty-adapter "1.7.1"]
                  [compojure "1.6.2"]
                  [cheshire "5.10.2"]
-                 [org.clojars.prozion/clj-tabtree "0.0.4"]
+                 [org.clojars.prozion/clj-tabtree "0.0.6"]
+                 [org.apache.jena/jena-arq "3.2.0"]
+                 [org.apache.jena/jena-iri "3.2.0"]
+                 [org.apache.jena/jena-tdb "3.2.0"]
+                 [org.slf4j/slf4j-api "1.7.5"]
+                 [org.slf4j/slf4j-simple "1.6.4"]
                 ]
 
   :plugins [
