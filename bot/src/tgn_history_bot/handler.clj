@@ -16,15 +16,15 @@
         command (tb/get-command text)]
     (println "text = '" text "'")
     (case command
-      "start" (tb/send-text "Дорогой друг! 1101110!" chat-id)
-      "help" (tb/send-text "Доступны такие команды: /start, /help, /list_modern_streets" chat-id)
+      "start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
+      "help" (tb/send-text "Доступны такие команды: /start, /help, /q" chat-id)
       ; "building" (let [body (tb/get-command-body text)]
       ;               (tb/send-text body chat-id))
-      "list_modern_streets" (tb/send-text (kb/get-modern-streets) chat-id)
-      "init_kb" (do
+      ; "streets" (tb/send-text (kb/get-modern-streets) chat-id)
+      "init" (do
                   (sparql/init-db "../factbase/houses/blocks.tree")
                   (tb/send-text "База знаний инициализирована." chat-id))
-      "which_block" (let [ans (or
+      "q" (let [ans (or
                                 (some-> text tb/get-command-body city/normalize-address sparql/find-blocks first)
                                 "Для данного адреса квартал не определен")]
                       ; (println (some-> text tb/get-command-body city/normalize-address))
