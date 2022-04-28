@@ -27,8 +27,8 @@
       "which_block" (let [ans (or
                                 (some-> text tb/get-command-body city/normalize-address sparql/find-blocks first)
                                 "Для данного адреса квартал не определен")]
-                      (println (some-> text tb/get-command-body city/normalize-address))
-                      (tb/send-text ans chat-id))
+                      ; (println (some-> text tb/get-command-body city/normalize-address))
+                      (tb/send-text (format "Квартал: %s" ans) chat-id))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))
