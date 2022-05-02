@@ -36,10 +36,12 @@
 
   :main tgn-history-bot.handler
 
+  :repl-options {:init-ns tgn-history-bot.checks}
+
   :target-path "target/%s"
 
   :profiles {:dev {:dependencies
                     [[javax.servlet/servlet-api "2.5"]
                      [ring-mock "0.1.5"]]
-                   :repl-options {:init-ns tgn-history-bot.handler}}
+                   :repl-options {:init-ns tgn-history-bot.checks}}
              :uberjar {:aot :all}})
