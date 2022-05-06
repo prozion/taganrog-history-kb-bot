@@ -25,8 +25,9 @@
 		План_Таганрога_1912 short-id:map1912 year:1912
 		План_таганрогского_коммерческого_порта_1914 year:1914
 	карты_электронные
-		YandexMaps short-id:ym url:maps.yandex.ru
 		MapPoi url:mappoi.ru
+		Wikimapia short-id:wm url:wikimapia.org/#lang=ru&lat=47.213388&lon=38.916836&z=14&m=w
+		YandexMaps short-id:ym url:maps.yandex.ru
 	книги
 		Были-небыли_Таганрога author:Пащенко_Игорь_Георгиевич year:2012
 		Были_давние_и_недавние author:Званцев_Сергей year:1974
@@ -40,7 +41,8 @@
 		По_старой_Греческой short-id:psgr src-part:page author:Гаврюшкин_Олег_Павлович year:2003
 	реестры
 		Dominfo short-id:di url:dominfo.ru/uk/region/rostovskaya-oblast/taganrog
-		ОКН_Таганрога url:old.donland.ru/?pageid=89581
+		Викигид short-id:wg url:ru-monuments.toolforge.org
+		ОКН_Таганрога short-id:okn url:old.donland.ru/?pageid=89581
 	сайты
 		Исторический_Таганрог url:sites.google.com/site/istoriceskijtaganrog site-owner:Пучкарев_Валерий
 	справочники
@@ -48,3 +50,4 @@
 	фотографии
 	энциклопедии
 		Энциклопедия_Таганрог year:2008 isbn:"978-5-88040-064-5"
+		Wikipedia short-id:wi

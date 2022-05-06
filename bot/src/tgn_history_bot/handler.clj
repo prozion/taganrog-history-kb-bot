@@ -25,7 +25,7 @@
                   (sparql/init-db "../factbase/houses/blocks.tree")
                   (tb/send-text "База знаний инициализирована." chat-id))
       "q" (let [ans (or
-                                (some-> text tb/get-command-body city/normalize-address sparql/find-blocks first)
+                                (city/get-historical-quarter (some-> text tb/get-command-body))
                                 "Для данного адреса квартал не определен")]
                       ; (println (some-> text tb/get-command-body city/normalize-address))
                       (tb/send-text (format "Квартал: %s" ans) chat-id))

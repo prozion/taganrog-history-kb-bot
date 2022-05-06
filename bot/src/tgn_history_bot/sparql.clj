@@ -45,7 +45,7 @@
       (tree-file->rdf-file tree-file-path rdf-file-path)
       (load-rdf rdf-file-path)))
 
-  (def find-blocks (make-query-func
+  (def find-historical-quarters (make-query-func
                     "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                      prefix : <https://purl.org/taganrog#>
                      prefix owl: <http://www.w3.org/2002/07/owl#>

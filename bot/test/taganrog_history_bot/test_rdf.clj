@@ -44,7 +44,7 @@
 (test-file-write)
 (load-rdf)
 
-(def find-blocks (make-query-func
+(def find-historical-quarters (make-query-func
                   "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                    prefix : <https://purl.org/denis-shirshov#>
                    prefix owl: <http://www.w3.org/2002/07/owl#>
@@ -53,4 +53,4 @@
                    LIMIT 10"
                   :block))
 
-(--- (some-> (find-blocks "Чехова_47") first))
+(--- (some-> (find-historical-quarters "Чехова_47") first))

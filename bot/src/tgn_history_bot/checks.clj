@@ -4,10 +4,15 @@
   (:require [clojure.string :as s]
             [clojure.set :as set]
             [tgn-history-bot.aux :refer :all]
+            [tgn-history-bot.sparql :as sparql]
+            [tgn-history-bot.city :as city]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]))
 
 (defn- get-addresses [tabtree]
-  (map :__id (filter #(= (tabtree/get-item-parameter :a %) :Building) (vals tabtree))))
+  (let [buildings (filter #(= (tabtree/get-item-parameter :a %) :Building) (vals tabtree))]
+    (unique-concat
+      (map :__id buildings)
+      (flatten (map :eq buildings)))))
 
 (defn minus-addresses [tabtree-file1 tabtree-file2]
   (let [
@@ -19,5 +24,7 @@
     (into [] (set/difference (set houses1) (set houses2)))))
 
 (defn all-dates-in-blocks []
-  (--- (minus-addresses "../factbase/houses/dates.tree" "../factbase/houses/blocks.tree"))
-  true)
+  (minus-addresses "../factbase/houses/dates.tree" "../factbase/houses/blocks.tree"))
+
+(defn all-names-in-blocks []
+  (minus-addresses "../factbase/houses/names.tree" "../factbase/houses/blocks.tree"))
