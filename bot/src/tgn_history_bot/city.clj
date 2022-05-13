@@ -10,7 +10,7 @@
         s/lower-case
         (s/replace "null" "")
         (s/replace "/" "-")
-        (s/replace #"(\bул\.?\s+)|(\bпер\.?\s+)|(\bд\.?\s+)" "")
+        (s/replace #"(\bул\.?\s+)|(\bпер\.?\s+)|(\bд\.?\s+)|(\bтуп\.?\s+)" "")
         (s/replace #"(\bulitsa\.?\s+)|(\bul\.?\s+)|(\bper\.?\s+)|(\bpereulok\.?\s+)|(\bд\.?\s+)" "")
         (s/replace "." "")
         (s/replace #"(\s+корп\.?\s+)|(\s+корпус\s+)" "-")
@@ -25,7 +25,25 @@
         s/trim
         ((fn [s] (s/join "_" (map s/capitalize (s/split s #" ")))))))
   ([street housenumber]
-    (some-> (format "%s %s" street housenumber) normalize-address)))
+    (let [housenumber (-> housenumber
+                          (or "?")
+                          (s/split #"/|\s")
+                          first)
+          street (or street "?")]
+      (some->
+        (format
+          "%s %s"
+          street
+          housenumber)
+        normalize-address))))
+
+(defn normalize-title [title]
+  (-> title
+    (s/replace "«" "")
+    (s/replace "»" "")
+    (s/replace ")" "")
+    (s/replace "(" "")
+    normalize-address))
 
 (defn get-historical-quarter [address-text]
   (some-> address-text normalize-address sparql/find-historical-quarters first))

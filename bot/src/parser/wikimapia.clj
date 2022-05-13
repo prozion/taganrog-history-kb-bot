@@ -2,16 +2,23 @@
   (:require [clj-http.client :as http]
             [cheshire.core :as cheshire]
             [clojure.string :as s]
+            [clojure.set :as set]
             [tgn-history-bot.aux :refer :all :rename {pp pff}]
             [tgn-history-bot.city :as city]
             [tgn-history-bot.globals :as g]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
             ))
 
+(def ^:dynamic *index-tabtree* {})
+
+(def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn")
+(def WM-HOUSES-TABTREE "../factbase/generated/wikimapia-houses.tree")
+(def WM-HOUSES-CSV "output/wikimapia-houses.csv")
+
 (defn get-house-by-id [id]
   (try
     (let [response (http/get
-                        (format "http://api.wikimapia.org/?function=place.getbyid&key=%s&id=%s&format=json" (:wikimapia-api-key g/settings) id))
+                        (format "http://api.wikimapia.org/?function=place.getbyid&key=%s&id=%s&language=ru&format=json" (:wikimapia-api-key g/settings) id))
           status (:status response)
           _ (when (not= status 200)
               (throw (Exception. (format "Response status is: %s" status))))
@@ -57,11 +64,15 @@
     true))
 
 (defn parse-wikimapia []
-  (let [CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
-        processed-houses (read-string (slurp CACHED-EDN))
-        processed-houses-ids (filter-map #(and (not (:error %)) (:id %)) processed-houses)
-        ; _ (--- processed-houses-ids)
+  (let [WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
+        processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
+        truly-processed-houses (filter #(and (not (:error %)) (:id %)) processed-houses)
+        truly-processed-houses-ids (map :id truly-processed-houses)
+        ; not-really-processed-houses-ids (into [] (set/difference (set (filter-map :id processed-houses)) (set truly-processed-houses-ids)))
+        ; _ (--- (filter-map #(and (:error %) (:id %)) processed-houses))
+        ; _ (--- not-really-processed-houses-ids)
         ; _ (throw (Exception. "Ok"))
+
         objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
         house-wm-ids (filter-map :wm (vals objects-tabtree))
         objects-data (->>
@@ -69,19 +80,19 @@
                         (reduce
                           (fn [acc id]
                             (cond
-                              (index-of? processed-houses-ids id)
+                              (index-of? truly-processed-houses-ids id)
                               (do
                                 (p ".")
                                 acc)
 
                               :else
                               (let [result (get-house-by-id id)]
-                                (p (if (:error result) "-" "+"))
+                                (p (if (:error result) id "+"))
                                 (conj acc result))))
-                          processed-houses)
+                          truly-processed-houses)
                         (into []))]
-    (write-to-file CACHED-EDN (pr-str objects-data))
-    ; objects-data
+
+    (write-to-file WM-HOUSES-CACHED-EDN (pr-str objects-data))
     true
     ))
 
@@ -95,6 +106,7 @@
     (string? val)
       (->>
         val
+        (#(s/replace % "\"" "'"))
         (#(s/replace % "\n" "\\n"))
         (format "\"%s\""))
     (coll? val)
@@ -104,41 +116,73 @@
 (defn clean-up [edn]
   (->> edn
       (remove :error)
-      (filter #(and (:street %) (:housenumber %)))))
+      (filter #(or (:street %) (:housenumber %) (:title %)))))
+
+(defn get-name-by-index [id]
+  (let [item (first (filter #(= id (:wm %)) (vals *index-tabtree*)))]
+    (and item (name (:__id item)))))
+
+(defn get-object-name [m]
+  (let [address (city/normalize-address (:street m) (:housenumber m))
+        title (city/normalize-title (:title m))
+        name-by-index (get-name-by-index (:id m))]
+    (cond
+      (or (:street m) (:housenumber m)) address
+      name-by-index name-by-index
+      (:title m) title
+      :else "_")))
 
 (defn edn->shallow-tabtree [edn root-name]
+  (--- (count edn))
   (reduce
     (fn [acc m]
-      (let [address (city/normalize-address (:street m) (:housenumber m))]
-        (if (:error m)
-          acc
-          (format "%s\t%s%s\n"
-                  acc
-                  address
-                  (reduce
-                    (fn [acc2 k]
-                      (let [val (m k)]
-                        (cond
-                          (not val) acc2
-                          (and (number? val) (= 0 val)) acc2
-                          (and (string? val) (empty? val)) acc2
-                          :else
-                            (format "%s %s:%s"
-                                    acc2
-                                    (name k)
-                                    (process-val val)))))
-                      ""
-                      (sort-by-order (keys m) [:id :title :street :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :wm-url :url :description]))))))
+        (format "%s\t%s%s\n"
+                acc
+                (get-object-name m)
+                (reduce
+                  (fn [acc2 k]
+                    (let [val (m k)]
+                      (cond
+                        (not val) acc2
+                        (and (number? val) (= 0 val)) acc2
+                        (and (string? val) (empty? val)) acc2
+                        :else
+                          (format "%s %s:%s"
+                                  acc2
+                                  (name k)
+                                  (process-val val)))))
+                    ""
+                    (sort-by-order (keys m) [:id :title :street :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :wm-url :url :description]))))
     (str root-name "\n")
     (sort #(city/compare-addresses
-              (city/normalize-address (:street %1) (:housenumber %1))
-              (city/normalize-address (:street %2) (:housenumber %2)))
+              (get-object-name %1)
+              (get-object-name %2))
           (clean-up edn))))
 
 (defn build-tabtree []
-  (let [CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
-        GENERATED-TABTREE "../factbase/generated/wikimapia-houses.tree"
-        processed-houses (read-string (slurp CACHED-EDN))
-        tabtree-houses (edn->shallow-tabtree processed-houses "processed_houses")]
-    (write-to-file GENERATED-TABTREE tabtree-houses)
-    true))
+  (binding [*index-tabtree* (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")]
+    (let [processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
+          tabtree-houses (edn->shallow-tabtree processed-houses "processed_houses")]
+      (write-to-file WM-HOUSES-TABTREE tabtree-houses)
+      true)))
+
+(defn build-csv []
+  (write-to-file
+    WM-HOUSES-CSV
+    (make-csv
+      (tabtree/parse-tab-tree WM-HOUSES-TABTREE)
+      :delimeter "\t"
+      :headers [
+        [:__id "адрес"]
+        [:title "название"]
+        [:street "улица"]
+        [:housenumber "номер дома"]
+        [:lat "широта"]
+        [:lon "долгота"]
+        [:id "wmid"]
+        [:wm-url "wikimapia"]
+        [:url "ссылки"]
+        [:author "автор"]
+        [:description "описание"]
+      ]))
+  true)
