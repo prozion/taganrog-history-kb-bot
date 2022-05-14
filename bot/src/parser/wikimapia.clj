@@ -7,6 +7,7 @@
             [tgn-history-bot.city :as city]
             [tgn-history-bot.globals :as g]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
+            [org.clojars.prozion.clj-tabtree.output :as output]
             ))
 
 (def ^:dynamic *index-tabtree* {})
@@ -169,7 +170,7 @@
 (defn build-csv []
   (write-to-file
     WM-HOUSES-CSV
-    (make-csv
+    (output/make-csv
       (tabtree/parse-tab-tree WM-HOUSES-TABTREE)
       :delimeter "\t"
       :headers [
