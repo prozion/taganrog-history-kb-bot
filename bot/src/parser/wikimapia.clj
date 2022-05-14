@@ -11,96 +11,115 @@
             ))
 
 (def ^:dynamic *index-tabtree* {})
+(def ^:dynamic *cached-response* {})
 
 (def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn")
+(def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
 (def WM-HOUSES-TABTREE "../factbase/generated/wikimapia-houses.tree")
 (def WM-HOUSES-CSV "output/wikimapia-houses.csv")
 
-(defn get-house-by-id [id]
-  (try
-    (let [response (http/get
+(set! *default-data-reader-fn* tagged-literal)
+
+(defn fruitful-response? [response]
+  (get-in (some-> response :body cheshire/parse-string) ["location" "lat"]))
+
+(defn get-response-by-id [id]
+  (let [response (or (*cached-response* id) {})
+        truly-read? (fruitful-response? response)]
+    (or
+      (and truly-read? (do (p ".") response))
+      (let [response (http/get
                         (format "http://api.wikimapia.org/?function=place.getbyid&key=%s&id=%s&language=ru&format=json" (:wikimapia-api-key g/settings) id))
-          status (:status response)
-          _ (when (not= status 200)
-              (throw (Exception. (format "Response status is: %s" status))))
-          res-edn (some-> response :body cheshire/parse-string)
-          error (get-in res-edn ["debug" "message"])
-          _ (when error
-              (throw (Exception. (format "%s" error))))
-          description (res-edn "description")
-          urls (re-seq #"https?://\S+" description)]
-        {:id (res-edn "id")
-         :title (res-edn "title")
-         :description (remove-urls description)
-         :url urls
-         :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])
-         ; :address (some-> (res-edn "location") (#(format "%s %s" (% "street") (% "housenumber"))) city/normalize-address)
-         :street (get-in res-edn ["location" "street"])
-         :housenumber (get-in res-edn ["location" "housenumber"])
-         :lat (get-in res-edn ["location" "lat"])
-         :lon (get-in res-edn ["location" "lon"])
-         :north (get-in res-edn ["location" "north"])
-         :east (get-in res-edn ["location" "east"])
-         :south (get-in res-edn ["location" "south"])
-         :west (get-in res-edn ["location" "west"])
-         :photo (get-in res-edn ["photos" 0 "full_url"])
-         :author (get-in res-edn ["edit_info" "user_name"])
-         :comments-n (count (get-in res-edn ["comments"]))
-         })
-    (catch Exception e
-      {:id id :error (.getMessage e)})))
+            _ (p (if (fruitful-response? response) "+" "-"))
+            new-cached-response (conj *cached-response* {id response})]
+        (write-to-file RESPONSE-CACHE (pr-str new-cached-response))
+        response))))
 
-(defn get-objects-inside-the-area [bbox]
-  (let [request-url (format
-                      "http://api.wikimapia.org/?function=place.getbyarea&key=%s&lon_min=%s&lat_min=%s&lon_max=%s&lat_max=%s&format=json"
-                      (:wikimapia-api-key g/settings)
-                      (:lon-min bbox)
-                      (:lat-min bbox)
-                      (:lon-max bbox)
-                      (:lat-max bbox)
-                      )
-        response (http/get request-url)
-        res-edn (some-> response :body cheshire/parse-string)]
-    res-edn
-    true))
+(defn id->edn [id]
+  (try
+    (binding [*cached-response* (read-string (slurp RESPONSE-CACHE))]
+      (let [response (get-response-by-id id)
+            status (:status response)
+            _ (when (not= status 200)
+                (throw (Exception. (format "Response status is: %s" status))))
+            res-edn (some-> response :body cheshire/parse-string)
+            error (get-in res-edn ["debug" "message"])
+            _ (when error
+                (throw (Exception. (format "%s" error))))
+            description (res-edn "description")
+            urls (re-seq #"https?://\S+" description)
+            tags (res-edn "tags")
+            categories (map #(% "title") tags)
+            photoes (map #(% "full_url") (get-in res-edn ["photos"]))
+            ]
+          {:id (res-edn "id")
+           :title (res-edn "title")
+           :description (remove-urls description)
+           :category categories
+           :url urls
+           :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])
+           ; :address (some-> (res-edn "location") (#(format "%s %s" (% "street") (% "housenumber"))) city/normalize-address)
+           :street (get-in res-edn ["location" "street"])
+           :housenumber (get-in res-edn ["location" "housenumber"])
+           :lat (get-in res-edn ["location" "lat"])
+           :lon (get-in res-edn ["location" "lon"])
+           :north (get-in res-edn ["location" "north"])
+           :east (get-in res-edn ["location" "east"])
+           :south (get-in res-edn ["location" "south"])
+           :west (get-in res-edn ["location" "west"])
+           :photo photoes
+           :author (get-in res-edn ["edit_info" "user_name"])
+           :comments-n (count (get-in res-edn ["comments"]))
+           })
+      (catch Exception e
+        {:id id :error (.getMessage e)}))))
 
-(defn parse-wikimapia []
-  (let [WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
-        processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
-        truly-processed-houses (filter #(and (not (:error %)) (:id %)) processed-houses)
-        truly-processed-houses-ids (map :id truly-processed-houses)
-        ; not-really-processed-houses-ids (into [] (set/difference (set (filter-map :id processed-houses)) (set truly-processed-houses-ids)))
-        ; _ (--- (filter-map #(and (:error %) (:id %)) processed-houses))
-        ; _ (--- not-really-processed-houses-ids)
-        ; _ (throw (Exception. "Ok"))
+; (defn get-objects-inside-the-area [bbox]
+;   (let [request-url (format
+;                       "http://api.wikimapia.org/?function=place.getbyarea&key=%s&lon_min=%s&lat_min=%s&lon_max=%s&lat_max=%s&format=json"
+;                       (:wikimapia-api-key g/settings)
+;                       (:lon-min bbox)
+;                       (:lat-min bbox)
+;                       (:lon-max bbox)
+;                       (:lat-max bbox)
+;                       )
+;         response (http/get request-url)
+;         res-edn (some-> response :body cheshire/parse-string)]
+;     res-edn
+;     true))
 
-        objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
-        house-wm-ids (filter-map :wm (vals objects-tabtree))
-        objects-data (->>
-                        house-wm-ids
-                        (reduce
-                          (fn [acc id]
-                            (cond
-                              (index-of? truly-processed-houses-ids id)
-                              (do
-                                (p ".")
-                                acc)
-
-                              :else
-                              (let [result (get-house-by-id id)]
-                                (p (if (:error result) id "+"))
-                                (conj acc result))))
-                          truly-processed-houses)
-                        (into []))]
-
-    (write-to-file WM-HOUSES-CACHED-EDN (pr-str objects-data))
-    true
-    ))
-
-(defn sample-request []
-  ; (get-objects-inside-the-area {:lat-min "47.211894" :lon-min "38.927201" :lat-max "47.213795" :lon-max "38.928853"}))
-  (get-house-by-id "11777338")
-  )
+; (defn parse-wikimapia []
+;   (let [WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
+;         processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
+;         truly-processed-houses (filter #(and (not (:error %)) (:id %)) processed-houses)
+;         truly-processed-houses-ids (map :id truly-processed-houses)
+;         ; not-really-processed-houses-ids (into [] (set/difference (set (filter-map :id processed-houses)) (set truly-processed-houses-ids)))
+;         ; _ (--- (filter-map #(and (:error %) (:id %)) processed-houses))
+;         ; _ (--- not-really-processed-houses-ids)
+;         ; _ (throw (Exception. "Ok"))
+;
+;         objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
+;         house-wm-ids (filter-map :wm (vals objects-tabtree))
+;         objects-data (->>
+;                         house-wm-ids
+;                         (reduce
+;                           (fn [acc id]
+;                             (cond
+;                               (index-of? truly-processed-houses-ids id)
+;                               (do
+;                                 (p ".")
+;                                 acc)
+;
+;                               :else
+;                               (let [result (id->edn id)]
+;                                 (p (if (:error result) "-" "+"))
+;                                 (conj acc result))))
+;                           truly-processed-houses)
+;                         (into []))]
+;
+;     (write-to-file WM-HOUSES-CACHED-EDN (pr-str objects-data))
+;     true
+;     ))
 
 (defn process-val [val]
   (cond
@@ -153,7 +172,7 @@
                                   (name k)
                                   (process-val val)))))
                     ""
-                    (sort-by-order (keys m) [:id :title :street :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :wm-url :url :description]))))
+                    (sort-by-order (keys m) [:id :title :street :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :category :wm-url :url :description]))))
     (str root-name "\n")
     (sort #(city/compare-addresses
               (get-object-name %1)
@@ -162,8 +181,12 @@
 
 (defn build-tabtree []
   (binding [*index-tabtree* (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")]
-    (let [processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
-          tabtree-houses (edn->shallow-tabtree processed-houses "processed_houses")]
+    (let [
+          ; processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
+          objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
+          house-wm-ids (filter-map :wm (vals objects-tabtree))
+          houses-edn (map id->edn house-wm-ids)
+          tabtree-houses (edn->shallow-tabtree houses-edn "processed_houses")]
       (write-to-file WM-HOUSES-TABTREE tabtree-houses)
       true)))
 
@@ -176,6 +199,7 @@
       :headers [
         [:__id "адрес"]
         [:title "название"]
+        [:category "категория"]
         [:street "улица"]
         [:housenumber "номер дома"]
         [:lat "широта"]
