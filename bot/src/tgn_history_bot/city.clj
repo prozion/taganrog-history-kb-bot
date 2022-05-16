@@ -14,9 +14,9 @@
         (s/replace "null" "")
         (s/replace "," "")
         (s/replace "/" "-")
-        (s/replace #"(\bул\.?\s+)|(\bпер\.?\s+)|(\bд\.?\s+)|(\bтуп\.?\s+)" "")
-        (s/replace #"(\bулица\.?\s+)|(\bпереулок\.?\s+)|(\bдом\.?\s+)|(\bтупик\.?\s+)" "")
-        (s/replace #"(\bulitsa\.?\s+)|(\bul\.?\s+)|(\bper\.?\s+)|(\bpereulok\.?\s+)|(\bdom\.?\s+)" "")
+        (s/replace #"(\bул\.?\s*)|(\bпер\.?\s*)|(\bд\.?\s*)|(\bтуп\.?\s*)" "")
+        (s/replace #"(\bулица\s+)|(\bпереулок\s+)|(\bдом\s+)|(\bтупик\s+)" "")
+        (s/replace #"(\bulitsa\s+)|(\bul\.?\s+)|(\bper\.?\s+)|(\bpereulok\s+)|(\bdom\s+)" "")
         (s/replace "." "")
         (s/replace #"(\s+корп\.?\s+)|(\s+корпус\s+)" "-")
         (s/replace #"антона\s*" "") ; Антона Глушко -> Глушко
