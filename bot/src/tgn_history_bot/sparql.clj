@@ -49,6 +49,8 @@
                          WHERE {
                            :?x :description ?description .
                            OPTIONAL { ?quarter :has_building :?x }
+                           OPTIONAL { ?quarter :has_building ?t.
+                                      ?t :eq :?x }
                            OPTIONAL { :?x :year ?year }
                            OPTIONAL { :?x :url ?url }
                          }
