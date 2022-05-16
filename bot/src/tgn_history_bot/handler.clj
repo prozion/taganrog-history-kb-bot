@@ -33,7 +33,7 @@
                 ans (or
                       (sparql/get-house-info address)
                       {:description "Для данного адреса информация пока отсутствует"})]
-            (tb/send-text (city/build-house-summary ans) chat-id :html))
+            (tb/send-text (city/build-house-summary ans) chat-id :markdown))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))
