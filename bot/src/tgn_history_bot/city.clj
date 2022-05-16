@@ -111,7 +111,9 @@
           "%s%s"
           acc
           (cond
-            (not (key data-m)) ""
+            (or
+              (not (key data-m))
+              (empty? (key data-m))) ""
             (= :description key) (format "\n\n%s" (data-m key))
             (= :url key) (let [urls (data-m key)]
                             (format "\n\n%s"
