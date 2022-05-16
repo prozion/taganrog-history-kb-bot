@@ -102,15 +102,15 @@
           comparison-result)))))
 
 (defn build-house-summary [data-m]
-  (let [headers {:description "Описание" :year "Год постройки" :quarter "Номер квартала"}]
+  (let [headers {:year "Год постройки" :quarter "Номер квартала" :description "Описание"}]
     (reduce
       (fn [acc key]
         (format
           "%s%s"
           acc
           (cond
-            (= :description key) (format "%s\n" (data-m key))
+            (= :description key) (format "\n\n%s" (data-m key))
             (not (key data-m)) ""
-            :else (format "%s: %s\n" (headers key) (data-m key)))))
+            :else (format "\n\n*%s*: %s" (headers key) (data-m key)))))
       (or (get-canonical-address (:normalized-address data-m)) "")
       (keys headers))))
