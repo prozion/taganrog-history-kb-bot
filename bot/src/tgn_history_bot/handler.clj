@@ -22,7 +22,7 @@
       ;               (tb/send-text body chat-id))
       ; "streets" (tb/send-text (kb/get-modern-streets) chat-id)
       "init" (do
-                  (sparql/init-db "../factbase/houses/quarters.tree" "../factbase/generated/wikimapia-houses.tree" "../factbase/houses/years.tree")
+                  (sparql/init-db "../factbase/houses/quarters.tree" "../factbase/houses/wikimapia-houses.tree" "../factbase/houses/years.tree")
                   (tb/send-text "База знаний инициализирована." chat-id))
       ; "q" (let [ans (or
       ;                 (city/get-historical-quarter (some-> text tb/get-command-body))
