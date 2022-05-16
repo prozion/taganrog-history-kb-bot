@@ -112,7 +112,8 @@
             (not (key data-m)) ""
             (= :description key) (format "\n\n%s" (data-m key))
             (= :url key) (let [urls (data-m key)]
-                            (make-markdown-link "Подробнее" (if (coll? urls) (first urls) urls)))
-            :else (format "\n\n*%s*: %s" (headers key) (key data-m)))))
+                            (format "\n\n%"
+                              (make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))
+            :else (format "\n\n<b>%s</b>: %s" (headers key) (key data-m)))))
       (or (get-canonical-address (:normalized-address data-m)) "")
       (keys headers))))

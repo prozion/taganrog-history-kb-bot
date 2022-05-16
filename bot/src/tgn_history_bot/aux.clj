@@ -66,4 +66,8 @@
 
 (defn make-markdown-link [text url]
   (let [url (if (s/starts-with? url "http") url (format "https://%s" url))]
-    (format "\n\n[%s](%s)" text url)))
+    (format "[%s](%s)" text url)))
+
+(defn make-html-link [text url]
+  (let [url (if (s/starts-with? url "http") url (format "https://%s" url))]
+    (format "<a href=\"%s\">%s</a>" url text)))

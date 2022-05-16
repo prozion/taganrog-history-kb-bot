@@ -14,7 +14,6 @@
                                                 :html "HTML"
                                                 "HTML")})
                           form-params)]
-      (println form-params)
       (http/post
         (str base-url "/sendMessage")
         {:form-params form-params})))
