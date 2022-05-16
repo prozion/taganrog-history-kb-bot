@@ -39,23 +39,24 @@
   ;                   :block))
 
   (defn get-house-info [address]
-    (let [result
-          (->>
-            (query-sparql
-              (s/replace
-                "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                 prefix : <https://purl.org/taganrog#>
-                 prefix owl: <http://www.w3.org/2002/07/owl#>
-                 SELECT ?description ?quarter ?year ?url
-                 WHERE {
-                   :?x :description ?description .
-                   OPTIONAL { ?quarter :has_building :?x }
-                   OPTIONAL { :?x :year ?year }
-                   OPTIONAL { :?x :url ?url }
-                 }
-                 LIMIT 10"
-                 #"\?x"
-                 address))
-            ts/result->map
-            first)]
-      (merge result {:normalized-address address})))
+    (let [result (->>
+                    (query-sparql
+                      (s/replace
+                        "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                         prefix : <https://purl.org/taganrog#>
+                         prefix owl: <http://www.w3.org/2002/07/owl#>
+                         SELECT ?description ?quarter ?year ?url
+                         WHERE {
+                           :?x :description ?description .
+                           OPTIONAL { ?quarter :has_building :?x }
+                           OPTIONAL { :?x :year ?year }
+                           OPTIONAL { :?x :url ?url }
+                         }
+                         LIMIT 10"
+                         #"\?x"
+                         address))
+                    ts/result->map
+                    first)
+          result (merge result {:normalized-address address})
+          result (if (> (-> result keys count) 1) result nil)]
+      result))

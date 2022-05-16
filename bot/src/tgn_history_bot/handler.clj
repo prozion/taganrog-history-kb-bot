@@ -5,6 +5,7 @@
             [compojure.route :as route]
             [cheshire.core :as cheshire]
             [tgn-history-bot.botapi :as tb]
+            [tgn-history-bot.aux :refer :all]
             [tgn-history-bot.kb :as kb]
             [tgn-history-bot.sparql :as sparql]
             [tgn-history-bot.city :as city]
@@ -32,7 +33,8 @@
       "i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
-                      {:description "Для данного адреса информация пока отсутствует"})]
+                      {:address (city/get-canonical-address address) :description "Информация отсутствует"})]
+              ; (--- (city/build-house-summary ans)))
               (tb/send-text (city/build-house-summary ans) chat-id :html))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
