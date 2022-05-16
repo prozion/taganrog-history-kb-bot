@@ -46,11 +46,12 @@
                 "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                  prefix : <https://purl.org/taganrog#>
                  prefix owl: <http://www.w3.org/2002/07/owl#>
-                 SELECT ?description ?quarter ?year
+                 SELECT ?description ?quarter ?year ?url
                  WHERE {
                    :?x :description ?description .
                    OPTIONAL { ?quarter :has_building :?x }
                    OPTIONAL { :?x :year ?year }
+                   OPTIONAL { :?x :url ?url }
                  }
                  LIMIT 10"
                  #"\?x"
