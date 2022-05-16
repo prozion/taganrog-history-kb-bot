@@ -54,7 +54,7 @@
             ]
           {:id (res-edn "id")
            :title (res-edn "title")
-           :description (remove-urls description)
+           :description (-> description remove-urls s/trim)
            :category categories
            :url urls
            :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])

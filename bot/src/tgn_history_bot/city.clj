@@ -51,7 +51,7 @@
         first-number (first number-parts)
         block-number (second number-parts)
         canonical-address (format
-                            "%s, дом %s%s"
+                            "%s, %s%s"
                             street-canonical
                             first-number
                             (if block-number
