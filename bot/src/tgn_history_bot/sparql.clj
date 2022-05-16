@@ -47,7 +47,7 @@
                          prefix owl: <http://www.w3.org/2002/07/owl#>
                          SELECT ?description ?quarter ?year ?url
                          WHERE {
-                           :?x :description ?description .
+                           OPTIONAL { :?x :description ?description }
                            OPTIONAL { ?quarter :has_building :?x }
                            OPTIONAL { ?quarter :has_building ?t.
                                       ?t :eq :?x }
