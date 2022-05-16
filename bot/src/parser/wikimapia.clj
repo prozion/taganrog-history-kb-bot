@@ -130,7 +130,7 @@
         (#(s/replace % "\n" "\\n"))
         (format "\"%s\""))
     (coll? val)
-      (s/join "," (map process-val val))
+      (s/join "," (remove nil? (map process-val val)))
     :else val))
 
 (defn clean-up [edn]

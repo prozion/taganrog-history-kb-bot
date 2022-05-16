@@ -1,8 +1,11 @@
 (ns tgn-history-bot.city
   (:require
     [clojure.string :as s]
+    [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
     [tgn-history-bot.aux :refer :all]
     [tgn-history-bot.sparql :as sparql]))
+
+(def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
 
 (defn normalize-address
   ([address-string]
@@ -37,6 +40,24 @@
           housenumber)
         normalize-address))))
 
+(defn get-canonical-address [normalized-address]
+  (let [parts (s/split normalized-address #"_")
+        street-id (keyword (s/join "_" (butlast parts)))
+        street-canonical (get-in ADDRESSES [street-id :canonical])
+        number (last parts)
+        number-parts (s/split number #"-")
+        first-number (first number-parts)
+        block-number (second number-parts)
+        canonical-address (format
+                            "%s, дом %s%s"
+                            street-canonical
+                            first-number
+                            (if block-number
+                                (format ", корпус %s" block-number)
+                                ""))]
+    canonical-address))
+
+
 (defn normalize-title [title]
   (-> title
     (s/replace "«" "")
@@ -45,8 +66,8 @@
     (s/replace "(" "")
     normalize-address))
 
-(defn get-historical-quarter [address-text]
-  (some-> address-text normalize-address sparql/find-historical-quarters first))
+; (defn get-historical-quarter [address-text]
+;   (some-> address-text normalize-address sparql/find-historical-quarters first))
 
 (defn break-up-address [address]
   (cond
@@ -79,3 +100,17 @@
         (if (= 0 comparison-result)
           (recur (rest address-parts1) (rest address-parts2))
           comparison-result)))))
+
+(defn build-house-summary [data-m]
+  (let [headers {:description "Описание" :year "Год постройки" :quarter "Номер квартала"}]
+    (reduce
+      (fn [acc key]
+        (format
+          "%s%s"
+          acc
+          (cond
+            (= :description key) (format "%s\n" (data-m key))
+            (not (key data-m)) ""
+            :else (format "%s: %s\n" (headers key) (data-m key)))))
+      (or (get-canonical-address (:normalized-address data-m)) "")
+      (keys headers))))

@@ -17,18 +17,23 @@
     (println "text = '" text "'")
     (case command
       "start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
-      "help" (tb/send-text "Доступны такие команды: /start, /help, /q" chat-id)
+      "help" (tb/send-text "Доступны такие команды: /start, /help, /i" chat-id)
       ; "building" (let [body (tb/get-command-body text)]
       ;               (tb/send-text body chat-id))
       ; "streets" (tb/send-text (kb/get-modern-streets) chat-id)
       "init" (do
-                  (sparql/init-db "../factbase/houses/blocks.tree")
+                  (sparql/init-db "../factbase/houses/quarters.tree" "../factbase/generated/wikimapia-houses.tree" "../factbase/houses/years.tree")
                   (tb/send-text "База знаний инициализирована." chat-id))
-      "q" (let [ans (or
-                                (city/get-historical-quarter (some-> text tb/get-command-body))
-                                "Для данного адреса квартал не определен")]
-                      ; (println (some-> text tb/get-command-body city/normalize-address))
-                      (tb/send-text (format "Квартал: %s" ans) chat-id))
+      ; "q" (let [ans (or
+      ;                 (city/get-historical-quarter (some-> text tb/get-command-body))
+      ;                 "Для данного адреса квартал не определен")]
+      ;                 ; (println (some-> text tb/get-command-body city/normalize-address))
+      ;       (tb/send-text (format "Квартал: %s" ans) chat-id))
+      "i" (let [address (some-> text tb/get-command-body city/normalize-address)
+                ans (or
+                      (sparql/get-house-info address)
+                      {:description "Для данного адреса информация пока отсутствует"})]
+            (tb/send-text (city/build-house-summary ans) chat-id))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))
