@@ -33,7 +33,7 @@
       "i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
-                      {:address (city/get-canonical-address address) :description "Информация отсутствует"})]
+                      {:normalized-address address :description "Информация отсутствует"})]
               ; (--- (city/build-house-summary ans)))
               (tb/send-text (city/build-house-summary ans) chat-id :html))
       (do

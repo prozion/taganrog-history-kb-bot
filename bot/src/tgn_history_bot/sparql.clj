@@ -55,8 +55,7 @@
                          LIMIT 10"
                          #"\?x"
                          address))
+                    ; (#(do (--- %) %))
                     ts/result->map
-                    first)
-          result (merge result {:normalized-address address})
-          result (if (> (-> result keys count) 1) result nil)]
-      result))
+                    first)]
+      (and result (merge result {:normalized-address address}))))

@@ -43,22 +43,23 @@
         normalize-address))))
 
 (defn get-canonical-address [normalized-address]
-  (let [parts (s/split normalized-address #"_")
-        street-id (keyword (s/join "_" (butlast parts)))
-        street-canonical (get-in ADDRESSES [street-id :canonical])
-        number (last parts)
-        number-parts (s/split number #"-")
-        first-number (first number-parts)
-        block-number (second number-parts)
-        canonical-address (format
-                            "%s, %s%s"
-                            street-canonical
-                            first-number
-                            (if block-number
-                                (format ", корпус %s" block-number)
-                                ""))]
-    canonical-address))
-
+  (and
+    normalized-address
+    (let [parts (s/split normalized-address #"_")
+          street-id (keyword (s/join "_" (butlast parts)))
+          street-canonical (get-in ADDRESSES [street-id :canonical])
+          number (last parts)
+          number-parts (s/split number #"-")
+          first-number (first number-parts)
+          block-number (second number-parts)
+          canonical-address (format
+                              "%s, %s%s"
+                              (or street-canonical (name street-id))
+                              first-number
+                              (if block-number
+                                  (format ", корпус %s" block-number)
+                                  ""))]
+      canonical-address)))
 
 (defn normalize-title [title]
   (-> title

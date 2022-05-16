@@ -52,5 +52,3 @@
                    WHERE {?%s :has_building :%s.}
                    LIMIT 10"
                   :block))
-
-(--- (some-> (find-historical-quarters "Чехова_47") first))
