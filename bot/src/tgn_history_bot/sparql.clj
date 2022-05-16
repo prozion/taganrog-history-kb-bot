@@ -3,7 +3,7 @@
             [clojure.string :as s]
             [jena-clj.triplestore :as ts :refer [with-transaction]]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-            [org.clojars.prozion.clj-tabtree.aux :as aux]
+            [org.clojars.prozion.clj-tabtree.aux :as aux :refer [---]]
             [org.clojars.prozion.clj-tabtree.rdf :as rdf])
   (:import (org.apache.jena.query ReadWrite)))
 

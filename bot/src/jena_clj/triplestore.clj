@@ -86,7 +86,7 @@
     (cond
       (.contains node-str "^^") (-> node-str (s/split #"\^\^") first)
       (.contains node-str "#") (-> node-str (s/split #"#") last)
-      (.contains node-str "/") (-> node-str (s/split #"/") last)
+      (and (s/starts-with? node-str ":") (.contains node-str "/")) (-> node-str (s/split #"/") last)
       :else node-str)))
 
 (defn fields->seq [o]

@@ -63,3 +63,7 @@
     text
     (s/replace #"https?://\S+" "")
     (s/replace #"\s+" " ")))
+
+(defn make-markdown-link [text url]
+  (let [url (if (s/starts-with? url "http") url (format "https://%s" url))]
+    (format "\n\n[%s](%s)" text url)))
