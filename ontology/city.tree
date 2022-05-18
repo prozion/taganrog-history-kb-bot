@@ -1,0 +1,4 @@
+city instance-of:owl/Ontology dc/title:"Онтология для концепций городской среды Таганрога в историческом контексте" iri:http://www.w3.org/2002/07/owl
+	has_building owl/inverseOf:q
+	q a:rdf/Property owl/equivalentProperty:Quarter
+	Quarter a:owl/Class

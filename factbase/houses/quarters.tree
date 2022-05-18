@@ -1,6 +1,4 @@
 Quarters_graph
-	has_building owl/inverseOf:q
-	q a:rdf/Property owl/equivalentProperty:Quarter
 	quarters section-hierarchy-relation:includes +section-hierarchy-relation:has_building
 		9 a:Quarter +a:Building
 			Ленина_175

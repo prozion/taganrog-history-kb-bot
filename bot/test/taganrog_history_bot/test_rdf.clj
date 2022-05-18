@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jena-clj.triplestore :as ts :refer [with-transaction]]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-            [org.clojars.prozion.clj-tabtree.aux :as aux :refer [---]]
+            [odysseus.io :refer io]
             [org.clojars.prozion.clj-tabtree.rdf :as rdf])
   (:import (org.apache.jena.query ReadWrite)))
 
@@ -17,7 +17,7 @@
 
 (defn test-file-write []
   (let [tabtree (tabtree/parse-tab-tree (format "test/taganrog_history_bot/fixtures/%s.tree" FILE))]
-    (aux/write-to-file
+    (io/write-to-file
       rdf-file-path
       (rdf/to-rdf
         tabtree

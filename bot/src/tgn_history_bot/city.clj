@@ -2,7 +2,9 @@
   (:require
     [clojure.string :as s]
     [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-    [tgn-history-bot.aux :refer :all]
+    [odysseus.debug :refer :all]
+    [odysseus.utils :refer :all]
+    [odysseus.text :refer :all]
     [tgn-history-bot.sparql :as sparql]))
 
 (def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
@@ -31,10 +33,10 @@
         ((fn [s] (s/join "_" (map s/capitalize (s/split s #" ")))))))
   ([street housenumber]
     (let [housenumber (-> housenumber
-                          (or "?")
+                          (or "")
                           (s/split #"/|\s")
                           first)
-          street (or street "?")]
+          street (or street "неизвестная")] ; use of "?" causes problems in downstream sparql requests
       (some->
         (format
           "%s %s"
