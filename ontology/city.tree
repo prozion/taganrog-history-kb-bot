@@ -1,4 +1,108 @@
-city instance-of:owl/Ontology dc/title:"Онтология для концепций городской среды Таганрога в историческом контексте" iri:http://www.w3.org/2002/07/owl
-	has_building owl/inverseOf:q
-	q a:rdf/Property owl/equivalentProperty:Quarter
-	Quarter a:owl/Class
+city a:owl/Ontology dc/title:"Онтология для концепций городской среды Таганрога в историческом контексте" ns:https://purl.org/taganrog/city#
+	namespaces
+		rdf ns:http://www.w3.org/1999/02/22-rdf-syntax-ns#
+		rdfs ns:http://www.w3.org/2000/01/rdf-schema#
+		owl ns:http://www.w3.org/2002/07/owl#
+		dc ns:http://purl.org/dc/elements/1.1/
+		tabtree ns:https://purl.org/tabtree/core# no-prefix:<t>
+		tf ns:https://purl.org/tabtree/facts#
+	classes +a:owl/Class +section-hierarchy-relation:subclass-of
+		Address
+		AddressId regexp:`[А-ЯЁёа-я\-0-9_]+_[0-9]+(-[0-9а-я]+)?` d:"Унифицированная запись адреса, e.g. 'Социалистическая_7-1а'"
+		AddressableObject def:"#Домовладение\#ЖАКТ\#многоэтажка имеют ..."
+			House
+			Household
+			ZhAKT
+		Apartment eq:Квартира
+		Area
+			District eq:Район d:"Любой объект имеет эту категорию"
+				OfficialDistrict eq:АдминистративныйРайон d:"Официальное районирование, используемое властями и городскими службами"
+				VernacularDistrict eq:ВернакулярныйРайон d:"Неформальное районирование, используемое в повседневной речи e.g. Богудония, Собачеевка, Простоквашино и т.д." rdfs/seeAlso:factbase/vernaculars.tree
+			Subdistrict
+				Microdistrict eq:Микрорайон
+				Quarter eq:Квартал
+		BuildingNumber
+		CommunityBasicCell eq:БазоваяЯчейка,`(union-of Apartment Household)` def:"#Квартира и #Домовладение –  базовые ячейки административной части. Эти ячейки складывают население города, образуют самоуправление."
+		Category eq:Категория
+		CategoryByYear eq:КатегорияПоДатеПостройки subclass-of:Category +section-hierarchy-relation:a
+			Built_17xx eq:ДатаПостройки=17xx
+			Built_1_XIX eq:ДатаПостройки=1_половина_19_века
+			Built_2_XIX eq:ДатаПостройки=2_половина_19_века
+			Built_1_XX eq:ДатаПостройки=1_половина_20_века
+			Built_181x eq:ДатаПостройки=181x
+			Built_182x eq:ДатаПостройки=182x
+			Built_183x eq:ДатаПостройки=183x
+			Built_184x eq:ДатаПостройки=184x
+			Built_185x eq:ДатаПостройки=185x
+			Built_186x eq:ДатаПостройки=186x
+			Built_187x eq:ДатаПостройки=187x
+			Built_188x eq:ДатаПостройки=188x
+			Built_189x eq:ДатаПостройки=189x
+			Built_190x eq:ДатаПостройки=190x
+			Built_191x eq:ДатаПостройки=191x
+			Built_192x eq:ДатаПостройки=192x
+		City
+		SovietArchitecturalType owl/oneOf:Сталинка,Хрущевка,Брежневка,Конструктивизм,ДомРабочих def:"#многоэтажный_дом имеет категории периодизации"
+		Object eq:Объект +a:Category
+			Building eq:Постройка
+				Garage eq:Гараж
+				House eq:Здание
+					AdministrativeHouse eq:АдминистративноеЗдание
+					ResidentialHouse eq:ЖилойДом
+						MultistoryHouse eq:МногоэтажныйДом
+							ApartmentHouse eq:МногоквартирныйДом def:"#многоэтажный_дом – жилой дом на несколько квартир советской или постсоветской поры." question:"в доме на несколько (и много) этажей может не быть квартир (в общежитии - комнаты), поэтому возможно лучше многоквартирный дом сделать подклассом многоэтажного, как более общего понятия."
+								WorkersHouse def:"В категорию #многоэтажный_дом входят несколько дореволюционных домов рабочих около Приморского парка"
+							Dormitory eq:Общежитие
+							Tenement eq:ДоходныйДом
+						PrivateHouse eq:ЧастныйДом
+				Outbuilding eq:Пристройка
+				Outhouse eq:Сарай
+				Pavilion eq:Беседка
+			BuildingComplex
+				Household eq:Домовладение d:"Категория присваивается частным домам и дворам, где владелец одна семья"
+				ZhAKT eq:ЖАКТ def:"Многоквартирный двор. Группа домов под одним номером и с одним двором."
+			Well eq:Колодец
+		Quarter
+		QuarterNumber subclass-of:IntegerPositive def:"Кварталы пронумерованы сквозной нумерацией (первые 49 не используются, 50-186 кварталы старого города, дальше остальной город переразмечен сверху вниз слева направо)"
+		Street
+		Value eq:Значение
+	properties +a:rdfs/Property +section-hierarchy-relation:subproperty-of
+		address domain:AddressableObject range:AddressId def:"Эти категории наследуют за собой значение #адрес.","#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
+		built domain:Building range:tf/Time def:"#многоэтажный_дом имеет категории возраста (#$дата постройки) "
+		consists-of owl/inverseOf:part-of
+		is-in-area domain:Object range:Area
+			q a:owl/FunctionalProperty domain:Building range:QuarterNumber
+		number-of-building domain:AddressableObject range:BuildingNumber def:"#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
+		has-building owl/inverseOf:is-in-area
+		has-category domain:Object range:Category
+		has-value domain:Object range:Value
+			has-number a:owl/FunctionalProperty domain:Quarter range:QuarterNumber def:"#кварталы имеют номера"
+		house-soviet-type domain:`(union-of ApartmentHouse District)` range:SovietArchitecturalType def:"#многоэтажный_дом имеет категорию периодизации. Эти категории наследуются #району."
+		part-of subproperty-of:dc/partOf 
+			part-of-complex domain:Building range:BuildingComplex
+			part-of-area domain:Object range:Area
+		street eq:улица domain:AddressableObject range:Street def:"#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
+	instances
+	restrictions
+		Address consists-of:Street,BuildingNumber
+		Apartment owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:part-of owl/someValuesFrom:`(union-of ApartmentHouse ZhAKT)` def:"#Многоэтажный_дом и #ЖАКТ включают в себя #квартира."
+		ApartmentHouse owl/disjointWith:Tenement def:"В категорию #многоэтажный_дом не входят многоэтажные #доходные_дома" owl/equivalentClass:_1,_2
+			_1 a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:Subdistrict def:"Многоэтажный дом как правило включен в #микрорайон, но иногда может быть включен в #квартал"  пространство вокруг"
+		Building owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:Subdistrict def:"Таким образом административная цепочка складывается так: Город – Район – Квартал/Микрорайон – домовладение/ЖАКТ+картира или многоэтажка+квартира."
+		BuildingComplex owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:Quarter def:"#Домовладения и #жакты складываются в #кварталы" question:"Что делать в случае, если объект находится вне территории исторического квартала?"
+		District owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:City def:"Таким образом административная цепочка складывается так: Город – Район – Квартал/Микрорайон – домовладение/ЖАКТ+картира или многоэтажка+квартира."
+		Microdistrict owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:consists-of owl/allValuesFrom:MultistoryHouse def:"#микрорайон это несколько #многоэтажных_домов, образующих связанное пространство"
+		Object owl/equivalentClass:_1,_2,_3
+			_1 a:owl/Restriction owl/onProperty:has-value owl/cardinality:1 def:"Значение есть уникальная категория"
+			_2 a:owl/Restriction owl/onProperty:has-category owl/someValuesFrom:District def:"Любой объект имеет категорию #Район"
+			_3 a:owl/Restriction owl/onProperty:has-category owl/someValuesFrom:__1 def:"Любой объект имеет категорию #Квартал/#Микрорайон (нет бесхозных объектов)"
+				__1 owl/unionOf:Quarter,Microdistrict
+		Quarter owl/disjointWith:Microdistrict def:"В #кварталы не входят #микрорайоны." 
+		Subdistrict owl/equivalentClass:_
+			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:District def:"#кварталы образуют #районы.","Таким образом административная цепочка складывается так: Город – Район – Квартал/Микрорайон – домовладение/ЖАКТ+картира или многоэтажка+квартира." question:"То же самое верно относительно #микрорайонов?"
+		Tenement subclass-of:ZhAKT def:"#доходные_дома (они числятся как ЖАКТы)"
