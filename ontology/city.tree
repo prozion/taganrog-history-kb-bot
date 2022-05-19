@@ -100,8 +100,8 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 		Object owl/equivalentClass:_1,_2,_3
 			_1 a:owl/Restriction owl/onProperty:has-value owl/cardinality:1 def:"Значение есть уникальная категория"
 			_2 a:owl/Restriction owl/onProperty:has-category owl/someValuesFrom:District def:"Любой объект имеет категорию #Район"
-			_3 a:owl/Restriction owl/onProperty:has-category owl/someValuesFrom:__1 def:"Любой объект имеет категорию #Квартал/#Микрорайон (нет бесхозных объектов)"
-				__1 owl/unionOf:Quarter,Microdistrict
+			_3 a:owl/Restriction owl/onProperty:has-category owl/someValuesFrom:_ def:"Любой объект имеет категорию #Квартал/#Микрорайон (нет бесхозных объектов)"
+				_ owl/unionOf:Quarter,Microdistrict
 		Quarter owl/disjointWith:Microdistrict def:"В #кварталы не входят #микрорайоны." 
 		Subdistrict owl/equivalentClass:_
 			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:District def:"#кварталы образуют #районы.","Таким образом административная цепочка складывается так: Город – Район – Квартал/Микрорайон – домовладение/ЖАКТ+картира или многоэтажка+квартира." question:"То же самое верно относительно #микрорайонов?"
