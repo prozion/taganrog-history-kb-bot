@@ -1,0 +1,36 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix city: <https://purl.org/taganrog/city#>
+
+# можно, например, отобразить список муниципальных единиц – #жактов и #многоэтажек, выделить #управляющие_компании, #избирательные_округа, домовые комитеты самоуправления. На этом уровне абстракции у нас есть #избирательные_участки)
+SELECT ?address_id ?electoral_district ?managing_company
+WHERE {
+  ?x city:address ?address_id .
+  ?x rdf:typeOf [
+     a owl:Class ;
+     owl:unionOf (
+       city:ZhAKT
+       city:ApartmentHouse
+     )
+  ] .
+  OPTIONAL { ?x city:pollingPlace ?polling_place .
+              ?polling_place city:electoralDistrict ?electoral_district }
+  OPTIONAL { ?x city:managingCompany ?managing_company }
+}
+
+# TODO: по ним мы позволяем дать свойство категории #район и даже #квартал (среднее) значение #население, #плотность_населения.
+
+# можно работать на уровне архитектуры: выделить все #особняки #19_века, делать срезы исторической и культурной препозиции. Сколько домов с #правой_парадной? Сколько домов где есть #восемь_окон?
+
+SELECT
+  (count(?x) as ?right_front_door_mansions)
+  (count(?y) as ?eight_windows_mansions)
+WHERE {
+  ?mansion rdf:typeOf city:Built_XIX, city:Mansion .
+  ?x owl:sameAs ?mansion
+  ?x city:frontDoor city:RightFrontDoor .
+  ?y owl:sameAs ?mansion .
+  ?y city:numberOfWindows "8"^^xsd:integer .
+}
