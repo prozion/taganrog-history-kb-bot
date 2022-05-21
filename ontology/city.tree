@@ -1,4 +1,4 @@
-city a:owl/Ontology dc/title:"Онтология для концепций городской среды Таганрога в историческом контексте" ns:https://purl.org/taganrog/city#
+city a:owl/Ontology dc/title:"Онтология для основных концепций городской среды Таганрога в историческом контексте" dc/author:"Сергей Клунный","Денис Ширшов" ns:https://purl.org/taganrog/city#
 	namespaces
 		rdf ns:http://www.w3.org/1999/02/22-rdf-syntax-ns#
 		rdfs ns:http://www.w3.org/2000/01/rdf-schema#
@@ -24,7 +24,6 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 				Microdistrict eq:Микрорайон
 				Quarter eq:Квартал
 		BuildingNumber
-		CommunityBasicCell eq:БазоваяЯчейка,`(union-of Apartment Household)` def:"#Квартира и #Домовладение –  базовые ячейки административной части. Эти ячейки складывают население города, образуют самоуправление."
 		Category eq:Категория
 		CategoryByYear eq:КатегорияПоДатеПостройки subclass-of:Category +section-hierarchy-relation:a
 			Built_XVII eq:Здание_18_века
@@ -44,12 +43,6 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 			Built_190x eq:ДатаПостройки=190x
 			Built_191x eq:ДатаПостройки=191x
 			Built_192x eq:ДатаПостройки=192x
-		FrontDoor
-			LeftFrontDoor
-			CentralFrontDoor
-			RightFrontDoor
-		FrontDoorType owl/oneOf:`LeftFrontDoor,CentralFrontDoor,RightFrontDoor`
-		ManagingCompany eq:УправляющаяКомпания
 		Object eq:Объект a:Category
 			LocatableObject
 				Building eq:Постройка
@@ -71,22 +64,19 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 					ApartmentHouse
 					Household eq:Домовладение subclass-of:OwnableObject d:"Категория присваивается частным домам и дворам, где владелец одна семья"
 					ZhAKT eq:ЖАКТ def:"Многоквартирный двор. Группа домов под одним номером и с одним двором."
-				City
+						Tenement def:"#доходные_дома (числятся как ЖАКТы)"
+				City eq:Город
 				OwnableObject
-				Quarter
-				Street
+				Quarter eq:Квартал
+				Street eq:Улица
 				Well eq:Колодец
-		PollingPlace eq:ИзбирательныйУчасток
 		QuarterNumber subclass-of:IntegerPositive def:"Кварталы пронумерованы сквозной нумерацией (первые 49 не используются, 50-186 кварталы старого города, дальше остальной город переразмечен сверху вниз слева направо)"
-		SovietArchitecturalType owl/oneOf:Сталинка,Хрущевка,Брежневка,Конструктивизм,ДомРабочих def:"#многоэтажный_дом имеет категории периодизации"
 		Value eq:Значение
 	properties +a:rdf/Property +section-hierarchy-relation:subproperty-of
 		address domain:AddressableObject range:AddressId def:"Эти категории наследуют за собой значение #адрес.","#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
 		built domain:Building range:tf/Time def:"#многоэтажный_дом имеет категории возраста (#$дата постройки) "
 		consists-of owl/inverseOf:part-of
-		electoral-district domain:PollingPlace range:ElectoralDistrict
 		front-door domain:House range:FrontDoorType
-		managing-company domain:LocatableObject range:ManagingCompany
 		number-of-building domain:AddressableObject range:BuildingNumber def:"#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
 		number-of-windows domain:House range:rdfs/Literal
 		has-attribute domain:Object range:rdf/Property
@@ -95,12 +85,10 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 		has-subarea owl/inverseOf:part-of-area def:"Должна быть возможность подниматься и спускаться по категориям локации: Увидеть все районы – войти в район / Увидеть все кварталы и микрорайона, войти в выбранный / Увидеть домовладения/ЖАКТы/многоэтажки"
 		has-value domain:Object range:Value
 			has-number a:owl/FunctionalProperty domain:Quarter range:QuarterNumber def:"#кварталы имеют номера"
-		house-soviet-type domain:`(union-of ApartmentHouse District)` range:SovietArchitecturalType def:"#многоэтажный_дом имеет категорию периодизации. Эти категории наследуются #району."
 		part-of subproperty-of:dc/partOf 
 			part-of-complex domain:Building range:BuildingComplex
 			part-of-area domain:Object range:Area def:"Должна быть возможность подниматься и спускаться по категориям локации"
 				located-in-area domain:Building range:Area
-		polling-place domain:BuildingComplex range:PollingPlace
 		q eq:has-quarter-number a:owl/FunctionalProperty domain:Building range:QuarterNumber
 		owner eq:собственник domain:Object range:foaf/Person
 		street eq:улица domain:AddressableObject range:Street def:"#Домовладение\#ЖАКТ\#многоэтажка имеют две характеристики, два параметра: это #улица и #номер_дома (иначе говоря #адрес)."
@@ -128,4 +116,3 @@ city a:owl/Ontology dc/title:"Онтология для концепций го�
 		Quarter owl/disjointWith:Microdistrict def:"В #кварталы не входят #микрорайоны." 
 		Subdistrict owl/equivalentClass:_
 			_ a:owl/Restriction owl/onProperty:part-of-area owl/someValuesFrom:District def:"#кварталы образуют #районы.","Таким образом административная цепочка складывается так: Город – Район – Квартал/Микрорайон – домовладение/ЖАКТ+картира или многоэтажка+квартира." question:"То же самое верно относительно #микрорайонов?"
-		Tenement subclass-of:ZhAKT def:"#доходные_дома (они числятся как ЖАКТы)"

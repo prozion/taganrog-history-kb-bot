@@ -29,7 +29,7 @@ SELECT
   (count(?y) as ?eight_windows_mansions)
 WHERE {
   ?mansion rdf:typeOf city:Built_XIX, city:Mansion .
-  ?x owl:sameAs ?mansion
+  ?x owl:sameAs ?mansion .
   ?x city:frontDoor city:RightFrontDoor .
   ?y owl:sameAs ?mansion .
   ?y city:numberOfWindows "8"^^xsd:integer .
