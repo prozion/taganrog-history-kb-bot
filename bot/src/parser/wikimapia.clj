@@ -5,6 +5,8 @@
             [clojure.set :as set]
             [odysseus.io :refer :all]
             [odysseus.debug :refer :all]
+            [odysseus.text :refer :all]
+            [odysseus.utils :refer :all]
             [tgn-history-bot.city :as city]
             [tgn-history-bot.globals :as g]
             [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
@@ -88,39 +90,6 @@
 ;         res-edn (some-> response :body cheshire/parse-string)]
 ;     res-edn
 ;     true))
-
-; (defn parse-wikimapia []
-;   (let [WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn"
-;         processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
-;         truly-processed-houses (filter #(and (not (:error %)) (:id %)) processed-houses)
-;         truly-processed-houses-ids (map :id truly-processed-houses)
-;         ; not-really-processed-houses-ids (into [] (set/difference (set (filter-map :id processed-houses)) (set truly-processed-houses-ids)))
-;         ; _ (--- (filter-map #(and (:error %) (:id %)) processed-houses))
-;         ; _ (--- not-really-processed-houses-ids)
-;         ; _ (throw (Exception. "Ok"))
-;
-;         objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
-;         house-wm-ids (filter-map :wm (vals objects-tabtree))
-;         objects-data (->>
-;                         house-wm-ids
-;                         (reduce
-;                           (fn [acc id]
-;                             (cond
-;                               (index-of? truly-processed-houses-ids id)
-;                               (do
-;                                 (p ".")
-;                                 acc)
-;
-;                               :else
-;                               (let [result (id->edn id)]
-;                                 (p (if (:error result) "-" "+"))
-;                                 (conj acc result))))
-;                           truly-processed-houses)
-;                         (into []))]
-;
-;     (write-to-file WM-HOUSES-CACHED-EDN (pr-str objects-data))
-;     true
-;     ))
 
 (defn process-val [val]
   (cond

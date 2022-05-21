@@ -46,4 +46,5 @@
                      [ring-mock "0.1.5"]]
                    ; :repl-options {:init-ns tgn-history-bot.checks}}
                    :repl-options {:init-ns tgn-history-bot.handler}}
+                   ; :repl-options {:init-ns parser.wikimapia}}
              :uberjar {:aot :all}})

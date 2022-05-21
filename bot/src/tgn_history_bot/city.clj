@@ -4,7 +4,7 @@
     [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
     [odysseus.debug :refer :all]
     [odysseus.utils :refer :all]
-    [odysseus.text :refer :all]
+    [odysseus.text :as text]
     [tgn-history-bot.sparql :as sparql]))
 
 (def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
@@ -107,7 +107,14 @@
           comparison-result)))))
 
 (defn build-house-summary [data-m]
-  (let [headers {:quarter "Квартал" :year "Построен" :description "Описание" :url "Ссылки"}]
+  (let [attr-f (fn [attribute-name] #(format "\n\n%s%s" (-> attribute-name text/colons text/boldify text/->str) (% data-m)))
+        headers {:title #(format "\n\n%s" (-> (% data-m) text/boldify text/->str))
+                 :quarter (attr-f "Квартал" )
+                 :year (attr-f "Построен")
+                 :description (attr-f nil)
+                 :url #(let [urls (data-m %)]
+                                 (format "\n\n%s"
+                                   (text/make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))}]
     (reduce
       (fn [acc key]
         (format
@@ -117,10 +124,6 @@
             (or
               (not (key data-m))
               (empty? (key data-m))) ""
-            (= :description key) (format "\n\n%s" (data-m key))
-            (= :url key) (let [urls (data-m key)]
-                            (format "\n\n%s"
-                              (make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))
-            :else (format "\n\n<b>%s</b>: %s" (headers key) (key data-m)))))
+            :else ((headers key) key))))
       (or (get-canonical-address (:normalized-address data-m)) "")
       (keys headers))))
