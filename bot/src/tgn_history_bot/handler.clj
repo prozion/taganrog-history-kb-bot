@@ -25,7 +25,8 @@
       ; "streets" (tb/send-text (kb/get-modern-streets) chat-id)
       "init" (do
                   (sparql/init-db "../factbase/houses/quarters.tree" "../factbase/houses/wikimapia-houses.tree" "../factbase/houses/years.tree")
-                  (tb/send-text "База знаний инициализирована." chat-id))
+                  )
+                  ; (tb/send-text "База знаний инициализирована." chat-id))
       ; "q" (let [ans (or
       ;                 (city/get-historical-quarter (some-> text tb/get-command-body))
       ;                 "Для данного адреса квартал не определен")]
@@ -35,8 +36,8 @@
                 ans (or
                       (sparql/get-house-info address)
                       {:normalized-address address :description "Информация отсутствует"})]
-              ; (--- (city/build-house-summary ans)))
-              (tb/send-text (city/build-house-summary ans) chat-id :html))
+              (--- (city/build-house-summary ans)))
+              ; (tb/send-text (city/build-house-summary ans) chat-id :html))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))

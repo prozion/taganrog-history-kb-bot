@@ -6,6 +6,7 @@ city a:owl/Ontology dc/title:"Онтология для концепций св�
 		dc ns:http://purl.org/dc/elements/1.1/
 		foaf ns:http://xmlns.com/foaf/0.1/
 		tabtree ns:https://purl.org/tabtree/core# no-prefix:<t>
+		tp ns:https://purl.org/tabtree/person#
 		city ns:https://purl.org/taganrog/city#
 	classes +a:owl/Class +section-hierarchy-relation:subclass-of
 		CommunityBasicCell eq:БазоваяЯчейка,`(union-of city/Apartment city/Household)` def:"#Квартира и #Домовладение –  базовые ячейки административной части. Эти ячейки складывают население города, образуют самоуправление."
