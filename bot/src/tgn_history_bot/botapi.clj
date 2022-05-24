@@ -19,7 +19,7 @@
         {:form-params form-params})))
 
 (defn get-command [text]
-  (some-> (re-seq #"/(\w+)" text) first second))
+  (some-> (re-seq #"/(\w+)" text) first second s/lower-case))
 
 (defn get-message [body]
   (or (:message body) (:edited_message body)))
