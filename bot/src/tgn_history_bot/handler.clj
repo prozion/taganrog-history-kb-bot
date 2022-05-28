@@ -46,10 +46,10 @@
                                 (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
                                 :else
                                     (format "Есть данные про дома:\n%s"
-                                      (->> sparql-result (map :house) (map city/get-canonical-address) (s/join "\n"))))
+                                      (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))
                   ]
-              ; (--- text-result))
-              (tb/send-text text-result chat-id :html))
+              (--- text-result))
+              ; (tb/send-text text-result chat-id :html))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))

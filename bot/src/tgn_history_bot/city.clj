@@ -130,3 +130,28 @@
             :else ((headers key) key))))
       (or (get-canonical-address (:normalized-address data-m)) "")
       (keys headers))))
+
+(defn get-address-chunks [id]
+  (map
+    (fn [chunk]
+      (or (->integer chunk) chunk))
+    (s/split id #"(?<=\b)_[1-9]?(?=\b)")))
+
+(defn compare-address [id1 id2]
+  (let [chunks1 (get-address-chunks id1)
+        chunks2 (get-address-chunks id2)]
+    (->>
+        (cond
+          (empty? (or chunks1 [])) [-1]
+          (empty? (or chunks2 [])) [1]
+          :else
+            (map (fn [c1 c2]
+                    (cond
+                      (or (string? c1) (string? c2))
+                        (compare (str c1) (str c2))
+                      :else
+                        (compare c1 c2)))
+                  chunks1
+                  chunks2))
+        (remove #(= % 0))
+        (#(if (empty? %) 0 (first %))))))
