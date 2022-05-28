@@ -49,7 +49,10 @@
     normalized-address
     (let [parts (s/split normalized-address #"_")
           street-id (keyword (s/join "_" (butlast parts)))
-          street-canonical (get-in ADDRESSES [street-id :canonical])
+          street-canonical (or
+                              (get-in ADDRESSES [street-id :short-canonical])
+                              (get-in ADDRESSES [street-id :canonical])
+                              street-id)
           number (last parts)
           number-parts (s/split number #"-")
           first-number (first number-parts)

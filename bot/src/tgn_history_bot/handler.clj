@@ -1,6 +1,7 @@
 (ns tgn-history-bot.handler
   (:require
             ; [ring.adapter.jetty :refer :all]
+            [clojure.string :as s]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [cheshire.core :as cheshire]
@@ -8,6 +9,7 @@
             [odysseus.debug :refer :all]
             [odysseus.files :refer :all]
             [tgn-history-bot.kb :as kb]
+            [tgn-history-bot.security :as security]
             [tgn-history-bot.sparql :as sparql]
             [tgn-history-bot.city :as city]
   ))
@@ -20,24 +22,34 @@
     (case command
       "start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
       "help" (tb/send-text "Доступны такие команды: /start, /help, /i" chat-id)
-      ; "building" (let [body (tb/get-command-body text)]
-      ;               (tb/send-text body chat-id))
-      ; "streets" (tb/send-text (kb/get-modern-streets) chat-id)
       "init" (do
-                  (sparql/init-db "../factbase/houses/quarters.tree" "../factbase/houses/wikimapia-houses.tree" "../factbase/houses/years.tree")
+                  (sparql/init-db
+                    "../factbase/houses/quarters.tree"
+                    "../factbase/houses/wikimapia-houses.tree"
+                    "../factbase/houses/years.tree"
+                    "../factbase/houses/houses.tree"
+                    "../ontology/city-basic.tree"
+                    )
                   )
                   ; (tb/send-text "База знаний инициализирована." chat-id))
-      ; "q" (let [ans (or
-      ;                 (city/get-historical-quarter (some-> text tb/get-command-body))
-      ;                 "Для данного адреса квартал не определен")]
-      ;                 ; (println (some-> text tb/get-command-body city/normalize-address))
-      ;       (tb/send-text (format "Квартал: %s" ans) chat-id))
       "i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
                       {:normalized-address address :description "Информация отсутствует"})]
               ; (--- (city/build-house-summary ans)))
               (tb/send-text (city/build-house-summary ans) chat-id :html))
+      "lsh" (let [street (some-> text tb/get-command-body security/clean-text)
+                  ; canonical-street-name (city/get-canonical-address street)
+                  sparql-result (sparql/list-houses-on-the-street (city/normalize-address street))
+                  text-result (cond
+                                ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
+                                (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
+                                :else
+                                    (format "Есть данные про дома:\n%s"
+                                      (->> sparql-result (map :house) (map city/get-canonical-address) (s/join "\n"))))
+                  ]
+              ; (--- text-result))
+              (tb/send-text text-result chat-id :html))
       (do
         (println (format "Couldn't process a line: '%s'" text)))
       )))

@@ -3,20 +3,32 @@
             [clojure.string :as s]
             ))
 
-(defn index-of? [coll el]
-  (and
-    coll
-    (not (empty? coll))
-    (.contains coll el)))
-
 (defn truthy? [val]
   (if val true false))
 
 (defn falsy? [val]
   (not (truthy? val)))
 
+(defn xor [a b]
+  (or
+    (and (truthy? a) (falsy? b))
+    (and (falsy? a) (truthy? b))
+    false))
+
+(defn index-of? [coll el]
+  (and
+    coll
+    (not (empty? coll))
+    (.contains coll el)))
+
 (defn ->int [x]
   (Integer. (str x)))
+
+(defn ->integer [astr]
+  (try
+    (let [only-digits (s/join "" (filter #(re-seq #"[0-9]" (str %)) astr))]
+      (Integer. only-digits))
+    (catch Throwable e nil)))
 
 (defn map-map [f m]
   (into (empty m) (map f m)))

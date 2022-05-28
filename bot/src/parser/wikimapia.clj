@@ -62,7 +62,7 @@
            :url urls
            :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])
            ; :address (some-> (res-edn "location") (#(format "%s %s" (% "street") (% "housenumber"))) city/normalize-address)
-           :street (get-in res-edn ["location" "street"])
+           :street-string (get-in res-edn ["location" "street"])
            :housenumber (get-in res-edn ["location" "housenumber"])
            :lat (get-in res-edn ["location" "lat"])
            :lon (get-in res-edn ["location" "lon"])
@@ -106,18 +106,18 @@
 (defn clean-up [edn]
   (->> edn
       (remove :error)
-      (filter #(or (:street %) (:housenumber %) (:title %)))))
+      (filter #(or (:street-string %) (:housenumber %) (:title %)))))
 
 (defn get-name-by-index [id]
   (let [item (first (filter #(= id (:wm %)) (vals *index-tabtree*)))]
     (and item (name (:__id item)))))
 
 (defn get-object-name [m]
-  (let [address (city/normalize-address (:street m) (:housenumber m))
+  (let [address (city/normalize-address (:street-string m) (:housenumber m))
         title (city/normalize-title (:title m))
         name-by-index (get-name-by-index (:id m))]
     (cond
-      (or (:street m) (:housenumber m)) address
+      (or (:street-string m) (:housenumber m)) address
       name-by-index name-by-index
       (:title m) title
       :else "_")))
@@ -142,7 +142,7 @@
                                   (name k)
                                   (process-val val)))))
                     ""
-                    (sort-by-order (keys m) [:id :title :street :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :category :wm-url :url :description]))))
+                    (sort-by-order (keys m) [:id :title :street-string :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :category :wm-url :url :description]))))
     (str root-name "\n")
     (sort #(city/compare-addresses
               (get-object-name %1)
@@ -170,7 +170,7 @@
         [:__id "адрес"]
         [:title "название"]
         [:category "категория"]
-        [:street "улица"]
+        [:street-string "улица"]
         [:housenumber "номер дома"]
         [:lat "широта"]
         [:lon "долгота"]
