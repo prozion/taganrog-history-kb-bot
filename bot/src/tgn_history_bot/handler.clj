@@ -30,8 +30,8 @@
                     "../factbase/houses/houses.tree"
                     "../ontology/city-basic.tree"
                     )
+                  (tb/send-text "База знаний инициализирована." chat-id)
                   )
-                  ; (tb/send-text "База знаний инициализирована." chat-id))
       "i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
