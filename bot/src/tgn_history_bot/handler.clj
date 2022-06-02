@@ -41,7 +41,7 @@
       "i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
-                      {:normalized-address address :description "Информация отсутствует"})]
+                      {:normalized-address address :description "<i>Информация отсутствует"})]
               (if *testing-mode*
                 (--- (city/build-house-summary ans))
                 (tb/send-text (city/build-house-summary ans) chat-id :html)))
@@ -52,7 +52,7 @@
                                    ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
                                    (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
                                    :else
-                                      (format "Есть данные про дома:\n%s"
+                                      (format "<i>Есть данные про дома:</i>\n%s"
                                         (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))
                     ]
                   (if *testing-mode*
@@ -63,10 +63,10 @@
                      text-result (cond
                                     (not sparql-result) (format "ошибка ввода")
                                     :else
-                                        (format "Самые старые дома:\n%s"
+                                        (format "<i>Самые старые дома:</i>\n%s"
                                           (->>
                                             sparql-result
-                                            (map (fn [res] (format "<b>%s</b> %s" (:date res) (city/get-canonical-address (:house res)))))
+                                            (map (fn [res] (format "<b>%s</b> &ndash; %s" (:date res) (city/get-canonical-address (:house res)))))
                                             (s/join "\n"))))
                     ]
                   (if *testing-mode*
