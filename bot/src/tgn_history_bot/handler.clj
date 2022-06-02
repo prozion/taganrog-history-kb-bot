@@ -66,7 +66,7 @@
                                         (format "Самые старые дома:\n%s"
                                           (->>
                                             sparql-result
-                                            (map (fn [res] (format "%s %s" (:house res) (:date res))))
+                                            (map (fn [res] (format "<b>%s</b> %s" (:date res) (city/get-canonical-address (:house res)))))
                                             (s/join "\n"))))
                     ]
                   (if *testing-mode*

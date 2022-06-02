@@ -8,11 +8,11 @@
             [org.clojars.prozion.odysseus.io :as io]
             [org.clojars.prozion.tabtree.rdf :as rdf]))
 
-(def RDF-FILE "../export/kb.ttl")
-(def DATABASE-PATH "/var/db/jena/tgn-history")
+(def RDF_FILE "../export/kb.ttl")
+(def DATABASE_PATH "/var/db/jena/tgn-history")
 
 (defn get-db []
-  (ts/init-database DATABASE-PATH))
+  (ts/init-database DATABASE_PATH))
 
 (defn init-db [& tree-files]
   (let [
@@ -24,12 +24,12 @@
                                   "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                                   "rdfs" "http://www.w3.org/2000/01/rdf-schema#"
                                   "owl" "http://www.w3.org/2002/07/owl#"})
-        _ (io/write-to-file RDF-FILE joined-rdf)
-        db (ts/init-db DATABASE-PATH RDF-FILE)]
+        _ (io/write-to-file RDF_FILE joined-rdf)
+        db (ts/init-db DATABASE_PATH RDF_FILE)]
       db))
 
 (defn init-db-from-rdf []
-  (ts/init-db DATABASE-PATH "../export/kb-mini.ttl"))
+  (ts/init-db DATABASE_PATH "../export/kb-mini.ttl"))
 
 (defn get-all-node-info [id]
   (let [result (some->>
