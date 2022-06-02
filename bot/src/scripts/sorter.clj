@@ -2,11 +2,11 @@
 
 (ns scripts.sorter
   (:require [clojure.string :as s]
-            [odysseus.debug :refer :all]
-            [odysseus.io :as io]
-            [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-            [org.clojars.prozion.clj-tabtree.utils :as tutils]
-            [org.clojars.prozion.clj-tabtree.output :as tio]))
+            [org.clojars.prozion.odysseus.debug :refer :all]
+            [org.clojars.prozion.odysseus.io :as io]
+            [org.clojars.prozion.tabtree.tabtree :as tabtree]
+            [org.clojars.prozion.tabtree.utils :as tutils]
+            [org.clojars.prozion.tabtree.output :as tio]))
 
 (def ^:dynamic *tabtree* {})
 

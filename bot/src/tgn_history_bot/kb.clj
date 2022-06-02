@@ -1,7 +1,7 @@
 (ns tgn-history-bot.kb
   (:require
     [clojure.string :as s]
-    [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]))
+    [org.clojars.prozion.tabtree.tabtree :as tabtree]))
 
 (defn id->name [id]
   (-> id

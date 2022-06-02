@@ -6,7 +6,7 @@
             [tgn-history-bot.aux :refer :all]
             [tgn-history-bot.sparql :as sparql]
             [tgn-history-bot.city :as city]
-            [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]))
+            [org.clojars.prozion.tabtree.tabtree :as tabtree]))
 
 (defn- get-addresses [tabtree]
   (let [buildings (filter #(= (tabtree/get-item-parameter :a %) :Building) (vals tabtree))]

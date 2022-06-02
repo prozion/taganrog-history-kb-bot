@@ -3,27 +3,28 @@
             [cheshire.core :as cheshire]
             [clojure.string :as s]
             [clojure.set :as set]
-            [odysseus.io :refer :all]
-            [odysseus.debug :refer :all]
-            [odysseus.text :refer :all]
-            [odysseus.utils :refer :all]
+            [org.clojars.prozion.odysseus.io :refer :all]
+            [org.clojars.prozion.odysseus.debug :refer :all]
+            [org.clojars.prozion.odysseus.text :refer :all]
+            [org.clojars.prozion.odysseus.utils :refer :all]
             [tgn-history-bot.city :as city]
             [tgn-history-bot.globals :as g]
-            [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-            [org.clojars.prozion.clj-tabtree.output :as output]
+            [org.clojars.prozion.tabtree.tabtree :as tabtree]
+            [org.clojars.prozion.tabtree.output :as output]
             ))
 
 (def ^:dynamic *index-tabtree* {})
 (def ^:dynamic *cached-response* {})
 
-(def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia-houses.edn")
+(def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
-(def WM-HOUSES-TABTREE "../factbase/generated/wikimapia-houses.tree")
-(def WM-HOUSES-CSV "output/wikimapia-houses.csv")
+(def WM-HOUSES-TABTREE "../factbase/generated/wikimapia_houses.tree")
+(def WM-HOUSES-CSV "export/wikimapia_houses.csv")
 
 (set! *default-data-reader-fn* tagged-literal)
 
 (defn fruitful-response? [response]
+  "HTTP response in edn format either from server or cache, that contains real data"
   (get-in (some-> response :body cheshire/parse-string) ["location" "lat"]))
 
 (defn get-response-by-id [id]
@@ -37,6 +38,10 @@
             new-cached-response (conj *cached-response* {id response})]
         (write-to-file RESPONSE-CACHE (pr-str new-cached-response))
         response))))
+
+(defn handle-colon [text]
+  "remove blind colons in the text as a preceding word is treated by tabtree reader as a name of parameter"
+  (s/replace text #":(?=($|\S|[,.]))" ": "))
 
 (defn id->edn [id]
   (try
@@ -57,7 +62,7 @@
             ]
           {:id (res-edn "id")
            :title (res-edn "title")
-           :description (-> description remove-urls s/trim)
+           :description (-> description remove-urls s/trim handle-colon)
            :category categories
            :url urls
            :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])
@@ -154,7 +159,7 @@
     (let [
           ; processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
           objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
-          house-wm-ids (filter-map :wm (vals objects-tabtree))
+          house-wm-ids (remove nil? (map :wm (vals objects-tabtree)))
           houses-edn (map id->edn house-wm-ids)
           tabtree-houses (edn->shallow-tabtree houses-edn "processed_houses")]
       (write-to-file WM-HOUSES-TABTREE tabtree-houses)

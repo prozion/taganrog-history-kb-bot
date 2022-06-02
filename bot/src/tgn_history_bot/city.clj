@@ -1,10 +1,10 @@
 (ns tgn-history-bot.city
   (:require
     [clojure.string :as s]
-    [org.clojars.prozion.clj-tabtree.tabtree :as tabtree]
-    [odysseus.debug :refer :all]
-    [odysseus.utils :refer :all]
-    [odysseus.text :as text]
+    [org.clojars.prozion.tabtree.tabtree :as tabtree]
+    [org.clojars.prozion.odysseus.debug :refer :all]
+    [org.clojars.prozion.odysseus.utils :refer :all]
+    [org.clojars.prozion.odysseus.text :as text]
     [tgn-history-bot.sparql :as sparql]))
 
 (def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
@@ -21,6 +21,8 @@
         (s/replace #"(\bulitsa\s+)|(\bul\.?\s+)|(\bper\.?\s+)|(\bpereulok\s+)|(\bdom\s+)" "")
         (s/replace "." "")
         (s/replace #"(\s+корп\.?\s+)|(\s+корпус\s+)" "-")
+        (s/replace #"(\s+пл\.?\s+)" "площадь")
+        (s/replace #"(\s+бул\.?\s+)" "бульвар")
         (s/replace #"антона\s*" "") ; Антона Глушко -> Глушко
         (s/replace "grecheskaya" "греческая")
         (s/replace "petrovskaya" "петровская")
@@ -135,7 +137,7 @@
   (map
     (fn [chunk]
       (or (->integer chunk) chunk))
-    (s/split id #"(?<=\b)_[1-9]?(?=\b)")))
+    (s/split id #"(?<=\b)(_|-)[1-9]?(?=\b)")))
 
 (defn compare-address [id1 id2]
   (let [chunks1 (get-address-chunks id1)

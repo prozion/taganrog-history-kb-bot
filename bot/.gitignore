@@ -1,5 +1,5 @@
 /target
-/output/*.ttl
+/export/*.ttl
 /classes
 /checkouts
 pom.xml

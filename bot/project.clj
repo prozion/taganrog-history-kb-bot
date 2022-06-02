@@ -1,4 +1,4 @@
-(defproject tgn-history-bot "0.1.0"
+(defproject tgn-history-bot "0.2.1"
   :description "Бот над базой знаний о домах и улицах Таганрога"
   :url "https://github.com/prozion/tgn-history-bot"
 
@@ -12,7 +12,8 @@
                  [ring/ring-jetty-adapter "1.7.1"]
                  [compojure "1.6.2"]
                  [cheshire "5.10.2"]
-                 [org.clojars.prozion/clj-tabtree "0.3.5"]
+                 [org.clojars.prozion/odysseus "0.1.2"]
+                 [org.clojars.prozion/tabtree "0.5.2"]
                  [org.apache.jena/jena-arq "3.2.0"]
                  [org.apache.jena/jena-iri "3.2.0"]
                  [org.apache.jena/jena-tdb "3.2.0"]
@@ -22,6 +23,7 @@
 
   :plugins [
             [lein-ring "0.12.6"]
+            [lein-ancient "0.6.15"]
             ; [lein-immutant "2.1.0"]
             ]
 
@@ -39,5 +41,6 @@
                    ; :repl-options {:init-ns tgn-history-bot.checks}}
                    ; :repl-options {:init-ns parser.wikimapia}}
                    ; :repl-options {:init-ns scripts.sorter}}
-                   :repl-options {:init-ns tgn-history-bot.handler}}
+                   ; :repl-options {:init-ns scripts.extract-info}}
+                   :repl-options {:init-ns tgn-history-bot.test-handler}}
              :uberjar {:aot :all}})
