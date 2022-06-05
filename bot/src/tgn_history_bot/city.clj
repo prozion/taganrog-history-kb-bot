@@ -131,7 +131,7 @@
                                         (format "%s\n<a href=\"%s\">%s</a>" acc photo photo)
                                         acc))
                                     ""
-                                    photos)))})
+                                    (if (coll? photos) photos (list photos)))))})
                     headers)]
     (reduce
       (fn [acc key]
