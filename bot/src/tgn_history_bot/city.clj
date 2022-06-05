@@ -111,7 +111,7 @@
           (recur (rest address-parts1) (rest address-parts2))
           comparison-result)))))
 
-(defn build-house-summary [data-m]
+(defn build-house-summary [data-m & {:keys [show-photo]}]
   (let [attr-f (fn [attribute-name] #(format "\n\n%s%s" (-> attribute-name text/colons text/boldify text/->str) (% data-m)))
         headers {:title #(format "\n\n%s" (-> (% data-m) text/boldify text/->str))
                  :quarter (attr-f "Квартал" )
@@ -119,7 +119,20 @@
                  :description (attr-f nil)
                  :url #(let [urls (data-m %)]
                                  (format "\n\n%s"
-                                   (text/make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))}]
+                                   (text/make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))}
+        headers (if show-photo
+                    (merge
+                      headers
+                      {:photo (fn [_]
+                                (let [photos (:photo data-m)]
+                                  (reduce
+                                    (fn [acc photo]
+                                      (if photo
+                                        (format "%s\n<a href=\"%s\"><img src=\"%s\" /></a>" acc photo photo)
+                                        acc))
+                                    ""
+                                    photos)))})
+                    headers)]
     (reduce
       (fn [acc key]
         (format

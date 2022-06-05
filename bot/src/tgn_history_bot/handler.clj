@@ -21,12 +21,13 @@
 (defn process-command [message]
   (let [chat-id (get-in message [:chat :id])
         text (:text message)
-        command (tb/get-command text)]
+        command (tb/get-command text)
+        subcommands (tb/get-subcommands text)]
     (println "text = '" text "'")
     (case command
-      "start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
-      "help" (tb/send-text "Доступны такие команды: /start, /help, /i, /street, /oldest" chat-id)
-      "init" (do
+      "/start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
+      "/help" (tb/send-text "Доступны такие команды: /start, /help, /i, /street, /oldest" chat-id)
+      "/init" (do
                   (sparql/init-db
                     "../factbase/houses/quarters.tree"
                     "../factbase/houses/wikimapia_houses.tree"
@@ -38,14 +39,14 @@
                     (--- "База знаний инициализирована")
                     (tb/send-text "База знаний инициализирована." chat-id))
                   )
-      "i" (let [address (some-> text tb/get-command-body city/normalize-address)
+      "/i" (let [address (some-> text tb/get-command-body city/normalize-address)
                 ans (or
                       (sparql/get-house-info address)
                       {:normalized-address address :description "<i>Информация отсутствует"})]
               (if *testing-mode*
-                (--- (city/build-house-summary ans))
-                (tb/send-text (city/build-house-summary ans) chat-id :html)))
-      "street" (let [street (some-> text tb/get-command-body security/clean-text)
+                (--- (city/build-house-summary ans :show-photo (contains? subcommands "photo")))
+                (tb/send-text (city/build-house-summary ans :show-photo (contains? subcommands "photo")) chat-id :html)))
+      "/street" (let [street (some-> text tb/get-command-body security/clean-text)
                      ; canonical-street-name (city/get-canonical-address street)
                      sparql-result (sparql/list-houses-on-the-street (city/normalize-address street))
                      text-result (cond
@@ -58,7 +59,7 @@
                   (if *testing-mode*
                     (--- text-result)
                     (tb/send-text text-result chat-id :html)))
-      "oldest" (let [limit (or (some-> text tb/get-command-body ->integer) OLD-HOUSES-LIMIT)
+      "/oldest" (let [limit (or (some-> text tb/get-command-body ->integer) OLD-HOUSES-LIMIT)
                      sparql-result (sparql/list-houses-by-their-age limit)
                      text-result (cond
                                     (not sparql-result) (format "ошибка ввода")

@@ -47,6 +47,18 @@
                   ts/result->hash-no-ns)]
       result))
 
+(defn merge-query-results [results]
+  (reduce (fn [acc result]
+            (merge-with
+              (fn [a b] (cond
+                          (not a) b
+                          (= a b) a
+                          (coll? a) (conj a b)
+                          :else (list a b)))
+              acc result))
+      {}
+      results))
+
 (defn get-house-info [address]
   (let [result (->>
                   (query-sparql (get-db)
@@ -54,20 +66,21 @@
                       "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                        prefix : <https://purl.org/taganrog#>
                        prefix owl: <http://www.w3.org/2002/07/owl#>
-                       SELECT ?description ?quarter ?year ?url ?title
+                       SELECT ?description ?quarter ?year ?photo ?url ?title
                        WHERE {
                          OPTIONAL { :<address-id> :description ?description }
                          OPTIONAL { ?quarter :has_building :<address-id> }
                          OPTIONAL { ?quarter :has_building ?t.
                                     ?t :eq :<address-id> }
                          OPTIONAL { :<address-id> :built ?year }
+                         OPTIONAL { :<address-id> :photo ?photo }
                          OPTIONAL { :<address-id> :url ?url }
                          OPTIONAL { :<address-id> :title ?title }
                        }"
                        #"<address-id>"
                        address))
                   ts/result->hash-no-ns
-                  first)]
+                  merge-query-results)]
     (and result (merge result {:normalized-address address}))))
 
 (defn list-houses-on-the-street [street]

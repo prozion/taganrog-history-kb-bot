@@ -11,14 +11,18 @@
     (process-command {:text command-str})))
 
 (defn make-tests []
-    (emulate-command "/init")
+  (binding [*testing-mode* true]
+    ; (emulate-command "/init")
 
-    (--- "Информация по дому")
+    (--- "\n\nИнформация по дому")
     (emulate-command "/i Итальянский 51")
 
-    (--- "Дома с информацией по улице Пушкинская")
+    (--- "\n\nИнформация по дому с фотографиями")
+    (emulate-command "/i Александровская 27 --photo")
+
+    (--- "\n\nДома с информацией по улице Пушкинская")
     (emulate-command "/street Пушкинская")
 
-    (--- "7 старейших домов")
-    (emulate-command "/oldest 7")
+    (--- "\n\n7 старейших домов")
+    (emulate-command "/oldest 7"))
 )
