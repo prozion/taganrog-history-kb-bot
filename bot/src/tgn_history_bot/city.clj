@@ -128,7 +128,7 @@
                                   (reduce
                                     (fn [acc photo]
                                       (if photo
-                                        (format "%s\n<a href=\"%s\"><img src=\"%s\" /></a>" acc photo photo)
+                                        (format "%s\n<a href=\"%s\">%s</a>" acc photo photo)
                                         acc))
                                     ""
                                     photos)))})
