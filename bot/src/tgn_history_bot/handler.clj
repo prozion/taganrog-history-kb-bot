@@ -85,7 +85,6 @@
   (POST "/tgn-history"
         request
         (let [body (cheshire/parse-string (slurp (:body request)) true)
-              _ (--- request)
               message (tb/get-message body)]
           (process-command message)
           "Ok"))
