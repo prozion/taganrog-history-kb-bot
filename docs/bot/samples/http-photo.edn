@@ -1,0 +1,45 @@
+{
+  :message_id 605,
+  :from {
+    :id 242892670,
+    :is_bot false,
+    :first_name Denis,
+    :last_name Shirshov,
+    :username denis_shirshov,
+    :language_code en},
+  :chat {
+    :id 242892670,
+    :first_name Denis,
+    :last_name Shirshov,
+    :username denis_shirshov,
+    :type private},
+  :date 1654628424,
+  :photo [
+    {
+      :file_id AgACAgIAAxkBAAICXWKfoEg07lvh3-hEEa0yanCbXnsgAALtvTEbHpIBSaeR6VJR9q9FAQADAgADcwADJAQ,
+      :file_unique_id AQAD7b0xGx6SAUl4,
+      :file_size 1650,
+      :width 90,
+      :height 67
+    }
+    {
+      :file_id AgACAgIAAxkBAAICXWKfoEg07lvh3-hEEa0yanCbXnsgAALtvTEbHpIBSaeR6VJR9q9FAQADAgADbQADJAQ,
+      :file_unique_id AQAD7b0xGx6SAUly,
+      :file_size 25922,
+      :width 320,
+      :height 240
+    }
+    {
+      :file_id AgACAgIAAxkBAAICXWKfoEg07lvh3-hEEa0yanCbXnsgAALtvTEbHpIBSaeR6VJR9q9FAQADAgADeAADJAQ,
+      :file_unique_id AQAD7b0xGx6SAUl9,
+      :file_size 117629,
+      :width 800,
+      :height 600
+    }
+    {
+      :file_id AgACAgIAAxkBAAICXWKfoEg07lvh3-hEEa0yanCbXnsgAALtvTEbHpIBSaeR6VJR9q9FAQADAgADeQADJAQ,
+      :file_unique_id AQAD7b0xGx6SAUl-,
+      :file_size 221133,
+      :width 1280,
+      :height 960
+    }]}

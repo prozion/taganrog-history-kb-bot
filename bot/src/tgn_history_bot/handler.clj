@@ -19,9 +19,9 @@
 (def ^:dynamic *testing-mode* false)
 
 (defn process-command [message]
-  (--- message)
   (let [chat-id (get-in message [:chat :id])
         text (or (:text message) "")
+        photo (:photo message)
         command (tb/get-command text)
         body (tb/get-command-body text)]
     (--- "text = '" text "'")
@@ -85,6 +85,7 @@
   (POST "/tgn-history"
         request
         (let [body (cheshire/parse-string (slurp (:body request)) true)
+              _ (--- request)
               message (tb/get-message body)]
           (process-command message)
           "Ok"))
