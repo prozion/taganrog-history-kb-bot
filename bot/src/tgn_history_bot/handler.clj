@@ -19,6 +19,7 @@
 (def ^:dynamic *testing-mode* false)
 
 (defn process-command [message]
+  (--- message)
   (let [chat-id (get-in message [:chat :id])
         text (or (:text message) "")
         command (tb/get-command text)
