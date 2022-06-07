@@ -27,9 +27,10 @@
   (let [first-word (first (s/split command-string #" "))]
     (cond
       (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"
-      (re-matches #"^/?((info)|(инфо)|(и)|(i)|(проулицу))\b.*" first-word) "/street"
+      (re-matches #"^/?((info)|(инфо)|(и)|(i)|(street)|(проулицу))\b.*" first-word) "/street"
       (re-matches #"^/?((oldest)|(старые)|(с))\b.*" first-word) "/oldest"
       (re-matches #"^/?((photo)|(фото)|(ф))\b.*" first-word) "/photo"
+      (re-matches #"^/?((nophoto)|(нетфото))\b.*" first-word) "/nophoto"
       :else "/default")))
 
 (defn parse-command [command-string]
