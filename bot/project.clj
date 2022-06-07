@@ -1,4 +1,4 @@
-(defproject tgn-history-bot "0.2.1"
+(defproject tgn-history-bot "0.3.1"
   :description "Бот над базой знаний о домах и улицах Таганрога"
   :url "https://github.com/prozion/tgn-history-bot"
 
@@ -38,10 +38,10 @@
   :profiles {:dev {:dependencies
                     [[javax.servlet/servlet-api "2.5"]
                      [ring-mock "0.1.5"]]
-                   ; :repl-options {:init-ns tgn-history-bot.checks}}
+                   :repl-options {:init-ns tgn-history-bot.checks}}
                    ; :repl-options {:init-ns parser.wikimapia}}
                    ; :repl-options {:init-ns scripts.sorter}}
                    ; :repl-options {:init-ns scripts.extract-info}}
-                   :repl-options {:init-ns tgn-history-bot.test-handler}}
+                   ; :repl-options {:init-ns tgn-history-bot.test-handler}}
                    ; :repl-options {:init-ns tgn-history-bot.handler}}
              :uberjar {:aot :all}})

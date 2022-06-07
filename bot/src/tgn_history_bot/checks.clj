@@ -3,9 +3,11 @@
 (ns tgn-history-bot.checks
   (:require [clojure.string :as s]
             [clojure.set :as set]
-            [tgn-history-bot.aux :refer :all]
             [tgn-history-bot.sparql :as sparql]
             [tgn-history-bot.city :as city]
+            [org.clojars.prozion.odysseus.debug :refer :all]
+            [org.clojars.prozion.odysseus.utils :refer :all]
+            [org.clojars.prozion.odysseus.io :as io]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]))
 
 (defn- get-addresses [tabtree]
@@ -28,3 +30,14 @@
 
 (defn all-names-in-blocks []
   (minus-addresses "../factbase/houses/names.tree" "../factbase/houses/blocks.tree"))
+
+(defn duplicated-ids []
+  (let [lines (io/read-file-by-lines "../factbase/houses/quarters.tree")
+        ids (map (fn [line] (-> line (s/replace "\t" "") (s/split #"\s+") first)) lines)
+        duplicates (->> ids
+                        frequencies
+                        (filter #(> (second %) 1))
+                        (sort (fn [a b] (compare (second b) (second a)))))
+        _ (---- duplicates)
+       ]
+    true))

@@ -4,8 +4,7 @@
     [org.clojars.prozion.tabtree.tabtree :as tabtree]
     [org.clojars.prozion.odysseus.debug :refer :all]
     [org.clojars.prozion.odysseus.utils :refer :all]
-    [org.clojars.prozion.odysseus.text :as text]
-    [tgn-history-bot.sparql :as sparql]))
+    [org.clojars.prozion.odysseus.text :as text]))
 
 (def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
 
@@ -111,40 +110,15 @@
           (recur (rest address-parts1) (rest address-parts2))
           comparison-result)))))
 
-(defn build-house-summary [data-m & {:keys [show-photo]}]
-  (let [attr-f (fn [attribute-name] #(format "\n\n%s%s" (-> attribute-name text/colons text/boldify text/->str) (% data-m)))
-        headers {:title #(format "\n\n%s" (-> (% data-m) text/boldify text/->str))
-                 :quarter (attr-f "Квартал" )
-                 :year (attr-f "Построен")
-                 :description (attr-f nil)
-                 :url #(let [urls (data-m %)]
-                                 (format "\n\n%s"
-                                   (text/make-html-link "Подробнее" (if (coll? urls) (first urls) urls))))}
-        headers (if show-photo
-                    (merge
-                      headers
-                      {:photo (fn [_]
-                                (let [photos (:photo data-m)]
-                                  (reduce
-                                    (fn [acc photo]
-                                      (if photo
-                                        (format "%s\n<a href=\"%s\">%s</a>" acc photo photo)
-                                        acc))
-                                    ""
-                                    (if (coll? photos) photos (list photos)))))})
-                    headers)]
+(defn build-photo-list [data-m]
+  (let [photos (:photo data-m)]
     (reduce
-      (fn [acc key]
-        (format
-          "%s%s"
-          acc
-          (cond
-            (or
-              (not (key data-m))
-              (empty? (key data-m))) ""
-            :else ((headers key) key))))
-      (or (get-canonical-address (:normalized-address data-m)) "")
-      (keys headers))))
+      (fn [acc photo]
+        (if photo
+          (format "%s\n<a href=\"%s\">%s</a>" acc photo photo)
+          acc))
+      (format "\n%s\n\n" (text/boldify "Фотографии:"))
+      (if (coll? photos) photos (list photos)))))
 
 (defn get-address-chunks [id]
   (map

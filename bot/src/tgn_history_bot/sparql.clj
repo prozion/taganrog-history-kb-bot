@@ -3,9 +3,12 @@
             [clojure.string :as s]
             [jena.triplestore :as ts :refer [with-transaction query-sparql]]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
+            [org.clojars.prozion.odysseus.utils :refer :all]
             [org.clojars.prozion.odysseus.time :as time]
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.io :as io]
+            [org.clojars.prozion.odysseus.text :as text]
+            [tgn-history-bot.city :as city]
             [org.clojars.prozion.tabtree.rdf :as rdf]))
 
 (def RDF_FILE "../export/kb.ttl")
@@ -60,49 +63,115 @@
       results))
 
 (defn get-house-info [address]
-  (let [result (->>
+  (let [query-result (->>
+                        (query-sparql (get-db)
+                          (s/replace
+                            "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                             prefix : <https://purl.org/taganrog#>
+                             prefix owl: <http://www.w3.org/2002/07/owl#>
+                             SELECT ?description ?quarter ?year ?photo ?url ?title
+                             WHERE {
+                               OPTIONAL { :<address-id> :description ?description }
+                               OPTIONAL { ?quarter :has_building :<address-id> }
+                               OPTIONAL { ?quarter :has_building ?t.
+                                          ?t :eq :<address-id> }
+                               OPTIONAL { :<address-id> :built ?year }
+                               OPTIONAL { :<address-id> :photo ?photo }
+                               OPTIONAL { :<address-id> :url ?url }
+                               OPTIONAL { :<address-id> :title ?title }
+                             }"
+                             #"<address-id>"
+                             address))
+                        ts/result->hash-no-ns
+                        merge-query-results)
+        query-result (and query-result (merge query-result {:normalized-address address}))
+        output-parameter (fn [value & args]
+                            (let [header (first args)]
+                              (if value
+                                (format "\n\n%s%s%s"
+                                  (if header (-> header text/boldify text/->str) "")
+                                  (if header " " "")
+                                  value)
+                                "")))
+        link-html (when-let
+                     [urls (query-result :url)]
+                     (text/make-html-link "Подробнее" (if (coll? urls) (first urls) urls)))
+        photo-html (let [photos (query-result :photo)
+                         photos (and photos (if (coll? photos) (first photos) photos))]
+                      (and photos (format "<a href=\"%s\">%s</a>" photos photos)))
+        str-result
+          (str
+            (or
+              (some-> query-result :normalized-address city/get-canonical-address)
+              "")
+            ;; Заголовок
+            (output-parameter (some-> query-result :title text/boldify))
+            ;; Квартал
+            (output-parameter (:quarter query-result) "Квартал:")
+            ;; Год постройки
+            (output-parameter (:year query-result) "Построен:")
+            ;; Описание
+            (output-parameter (:description query-result))
+            ;; Картинка
+            (output-parameter (or link-html photo-html)))]
+    (if (not query-result)
+      "<i>Информация отсутствует</i>"
+      str-result)))
+
+(defn get-house-photo [address]
+  (let [query-result (->>
                   (query-sparql (get-db)
                     (s/replace
                       "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                        prefix : <https://purl.org/taganrog#>
                        prefix owl: <http://www.w3.org/2002/07/owl#>
-                       SELECT ?description ?quarter ?year ?photo ?url ?title
+                       SELECT ?photo
                        WHERE {
-                         OPTIONAL { :<address-id> :description ?description }
-                         OPTIONAL { ?quarter :has_building :<address-id> }
-                         OPTIONAL { ?quarter :has_building ?t.
-                                    ?t :eq :<address-id> }
-                         OPTIONAL { :<address-id> :built ?year }
-                         OPTIONAL { :<address-id> :photo ?photo }
-                         OPTIONAL { :<address-id> :url ?url }
-                         OPTIONAL { :<address-id> :title ?title }
+                         :<address-id> :photo ?photo
                        }"
                        #"<address-id>"
                        address))
                   ts/result->hash-no-ns
-                  merge-query-results)]
-    (and result (merge result {:normalized-address address}))))
+                  merge-query-results)
+        photo-html (let [photo-urls (query-result :photo)
+                         photo-urls (and photo-urls (if (coll? photo-urls) photo-urls (list photo-urls)))]
+                      (if photo-urls
+                        (reduce
+                          (fn [acc photo-url]
+                            (format "%s<a href=\"%s\">%s</a>\n" acc photo-url photo-url))
+                          ""
+                          photo-urls)
+                        (format "%s: фотографий этого здания в базе пока нет" (city/get-canonical-address address))))]
+    photo-html))
 
 (defn list-houses-on-the-street [street]
-  (let [result (some->>
-                  (query-sparql (get-db)
-                    (s/replace
-                      "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                       prefix : <https://purl.org/taganrog#>
-                       prefix owl: <http://www.w3.org/2002/07/owl#>
-                       SELECT ?house
-                       WHERE {
-                         ?house rdf:type :House .
-                         ?house :street :<street> .
-                         ?house :description ?description .
-                       }"
-                       #"<street>"
-                       street))
-                  ts/result->hash-no-ns)]
-      result))
+  (let [sparql-result
+          (some->>
+            (query-sparql (get-db)
+              (s/replace
+                "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                 prefix : <https://purl.org/taganrog#>
+                 prefix owl: <http://www.w3.org/2002/07/owl#>
+                 SELECT ?house
+                 WHERE {
+                   ?house rdf:type :House .
+                   ?house :street :<street> .
+                   ?house :description ?description .
+                 }"
+                 #"<street>"
+                 street))
+            ts/result->hash-no-ns)
+            result (cond
+                      ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
+                      (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
+                      :else
+                         (format "<i>Есть информация про дома:</i>\n%s"
+                           (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))]
+    result))
 
 (defn list-houses-by-their-age [limit]
-  (let [all-dates (some->>
+  (let [
+        all-dates (some->>
                     (query-sparql (get-db)
                       (format
                         "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -123,5 +192,13 @@
                               :else 0)))
                         all-dates)
         top-dates (take limit sorted-dates)
-        ]
-      top-dates))
+        result (cond
+                 (empty? top-dates) (format "ошибка ввода, возвращен пустой результат")
+                 :else
+                     (format "<i>%s самых старых домов:</i>\n%s"
+                      limit
+                      (->>
+                        top-dates
+                        (map (fn [res] (format "<b>%s</b> – %s" (:date res) (city/get-canonical-address (:house res)))))
+                        (s/join "\n"))))]
+    result))

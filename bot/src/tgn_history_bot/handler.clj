@@ -22,11 +22,11 @@
   (let [chat-id (get-in message [:chat :id])
         text (:text message)
         command (tb/get-command text)
-        subcommands (tb/get-subcommands text)]
+        body (tb/get-command-body text)]
     (println "text = '" text "'")
     (case command
       "/start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
-      "/help" (tb/send-text "Доступны такие команды: /start, /help, /i, /street, /oldest" chat-id)
+      "/help" (tb/send-text "Доступны такие команды: инфо, старые, фото" chat-id)
       "/init" (do
                   (sparql/init-db
                     "../factbase/houses/quarters.tree"
@@ -39,42 +39,33 @@
                     (--- "База знаний инициализирована")
                     (tb/send-text "База знаний инициализирована." chat-id))
                   )
-      "/i" (let [address (some-> text tb/get-command-body city/normalize-address)
-                ans (or
-                      (sparql/get-house-info address)
-                      {:normalized-address address :description "<i>Информация отсутствует"})]
-              (if *testing-mode*
-                (--- (city/build-house-summary ans :show-photo (contains? subcommands "photo")))
-                (tb/send-text (city/build-house-summary ans :show-photo (contains? subcommands "photo")) chat-id :html)))
-      "/street" (let [street (some-> text tb/get-command-body security/clean-text)
+      "/street" (let [street (some-> body security/clean-text)
                      ; canonical-street-name (city/get-canonical-address street)
-                     sparql-result (sparql/list-houses-on-the-street (city/normalize-address street))
-                     text-result (cond
-                                   ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
-                                   (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
-                                   :else
-                                      (format "<i>Есть данные про дома:</i>\n%s"
-                                        (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))
+                     ans (sparql/list-houses-on-the-street (city/normalize-address street))
                     ]
                   (if *testing-mode*
-                    (--- text-result)
-                    (tb/send-text text-result chat-id :html)))
-      "/oldest" (let [limit (or (some-> text tb/get-command-body ->integer) OLD-HOUSES-LIMIT)
-                     sparql-result (sparql/list-houses-by-their-age limit)
-                     text-result (cond
-                                    (not sparql-result) (format "ошибка ввода")
-                                    :else
-                                        (format "<i>Самые старые дома:</i>\n%s"
-                                          (->>
-                                            sparql-result
-                                            (map (fn [res] (format "<b>%s</b> – %s" (:date res) (city/get-canonical-address (:house res)))))
-                                            (s/join "\n"))))
+                    (--- ans)
+                    (tb/send-text ans chat-id :html)))
+      "/oldest" (let [limit (or (some-> body ->integer) OLD-HOUSES-LIMIT)
+                     ans (sparql/list-houses-by-their-age limit)
                     ]
                   (if *testing-mode*
-                    (--- text-result)
-                    (tb/send-text text-result chat-id :html)))
-      (do
-        (println (format "%s: Бот не смог распознать команду" text)))
+                    (--- ans)
+                    (tb/send-text ans chat-id :html)))
+      "/photo" (let [address (some-> body city/normalize-address)
+                     ans (sparql/get-house-photo address)]
+                  (if *testing-mode*
+                    (--- ans)
+                    (tb/send-text ans chat-id :html)))
+      ; "/info"
+      (let [address (some-> body city/normalize-address)
+                ans (if (re-seq #".+\d+" address)
+                      (sparql/get-house-info address)
+                      (sparql/list-houses-on-the-street address))
+                      ]
+              (if *testing-mode*
+                (--- ans)
+                (tb/send-text ans chat-id :html)))
       )))
 
 (defroutes app

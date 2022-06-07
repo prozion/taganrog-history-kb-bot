@@ -1,6 +1,7 @@
 (ns tgn-history-bot.botapi
   (:require [clojure.string :as s]
             [tgn-history-bot.globals :refer :all]
+            [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [clj-http.client :as http]))
 
@@ -19,28 +20,34 @@
         (str base-url "/sendMessage")
         {:form-params form-params})))
 
+(defn clean-command-string [command-string]
+  (s/replace command-string #"[^А-ЯЁа-яA-Za-z0-9 \-_/]" ""))
+
+(defn detect-command-by-first-word [command-string]
+  (let [first-word (first (s/split command-string #" "))]
+    (cond
+      (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"
+      (re-matches #"^/?((info)|(инфо)|(и)|(i)|(проулицу))\b.*" first-word) "/street"
+      (re-matches #"^/?((oldest)|(старые)|(с))\b.*" first-word) "/oldest"
+      (re-matches #"^/?((photo)|(фото)|(ф))\b.*" first-word) "/photo"
+      :else "/default")))
+
 (defn parse-command [command-string]
-  (let [words (s/split command-string #" ")
-        commands (filter #(re-matches #"/[a-z0-9]+" %) words)
-        prime-command (and (= (first words) (first commands)) (first commands))
-        subcommand-exprs (filter #(re-matches #"--([a-z]+)=?([a-z0-9]+)?" %) words)
-        subcommands (reduce
-                      #(apply assoc %1 %2)
-                      {}
-                      (map rest
-                        (remove nil?
-                          (map #(re-matches #"--([a-z]+)=?([a-z0-9]+)?" %) words))))
-        body (s/join " " (filter #(not (index-of? (concat commands subcommand-exprs) %)) words))
+  (let [command-string (clean-command-string command-string)
+        command (detect-command-by-first-word command-string)
+        words (s/split command-string #" ")
+        body (s/join
+                " "
+                (if (= command "/default")
+                  words
+                  (rest words)))
         ]
-    {:command prime-command :subcommands subcommands :body body}))
+    {:command command
+     :body body}))
 
 (defn get-command [text]
   ; (some-> (re-seq #"/(\w+)" text) first second s/lower-case))
   (:command (parse-command text)))
-
-(defn get-subcommands [text]
-  ; (some-> (re-seq #"/(\w+)" text) first second s/lower-case))
-  (:subcommands (parse-command text)))
 
 (defn get-command-body [text]
   (:body (parse-command text)))
