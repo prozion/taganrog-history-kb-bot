@@ -79,7 +79,7 @@
     (catch Throwable e
       (if *testing-mode*
         (--- "ошибка ввода")
-        (tb/send-text "ошибка ввода" chat-id))))))
+        (tb/send-text (format "ошибка: %s" (.getMessage e)) chat-id))))))
 
 (defroutes app
   (GET "/tgn-history"
