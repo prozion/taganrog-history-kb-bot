@@ -26,7 +26,7 @@
     (str base-url "/sendPhoto")
     {:multipart
       [
-        {:name "chat_id" :content (str chat-id})
+        {:name "chat_id" :content (str chat-id)}
         {:name "photo" :content (io/file photo-filepath)}
       ]}
 ))
