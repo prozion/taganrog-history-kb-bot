@@ -13,6 +13,7 @@
 
 (def RDF_FILE "../export/kb.ttl")
 (def DATABASE_PATH "/var/db/jena/tgn-history")
+(def PHOTO_DATABASE_PATH "../../data/taganrog-history-kb-photo")
 
 (defn get-db []
   (ts/init-database DATABASE_PATH))
@@ -143,6 +144,11 @@
                           photo-urls)
                         (format "%s: фотографий этого здания в базе пока нет" (city/get-canonical-address address))))]
     photo-html))
+
+(defn get-house-photo-paths [address]
+  (let [photo-dirpath (str PHOTO_DATABASE_PATH "/" address)
+        files (io/list-files photo-dirpath)]
+    (map #(str photo-dirpath "/" %) files)))
 
 (defn list-houses-on-the-street [street]
   (let [sparql-result

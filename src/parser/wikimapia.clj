@@ -19,7 +19,7 @@
 
 (def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
-(def WM-HOUSES-TABTREE "../factbase/generated/wikimapia_houses.tree")
+(def WM-HOUSES-TABTREE "../taganrog-history-kb/factbase/generated/wikimapia_houses.tree")
 (def WM-HOUSES-CSV "export/wikimapia_houses.csv")
 ; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
 (def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
@@ -158,10 +158,10 @@
           (clean-up edn))))
 
 (defn build-tabtree []
-  (binding [*index-tabtree* (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")]
+  (binding [*index-tabtree* (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/indexes.tree")]
     (let [
           ; processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
-          objects-tabtree (tabtree/parse-tab-tree "../factbase/houses/indexes.tree")
+          objects-tabtree (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/indexes.tree")
           house-wm-ids (remove nil? (map :wm (vals objects-tabtree)))
           houses-edn (map id->edn house-wm-ids)
           tabtree-houses (edn->shallow-tabtree houses-edn "processed_houses")]

@@ -6,7 +6,7 @@
     [org.clojars.prozion.odysseus.utils :refer :all]
     [org.clojars.prozion.odysseus.text :as text]))
 
-(def ADDRESSES (tabtree/parse-tab-tree "../factbase/streets/ids.tree"))
+(def ADDRESSES (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/streets/ids.tree"))
 
 (defn normalize-address
   ([address-string]

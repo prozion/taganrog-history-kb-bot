@@ -31,10 +31,10 @@
         "/help" (tb/send-text "Доступны такие команды: инфо, старые, фото" chat-id)
         "/init" (do
                     (sparql/init-db
-                      "../factbase/houses/quarters.tree"
-                      "../factbase/houses/wikimapia_houses.tree"
-                      "../factbase/houses/years.tree"
-                      "../factbase/houses/houses.tree"
+                      "../taganrog-history-kb/factbase/houses/quarters.tree"
+                      "../taganrog-history-kb/factbase/houses/wikimapia_houses.tree"
+                      "../taganrog-history-kb/factbase/houses/years.tree"
+                      "../taganrog-history-kb/factbase/houses/houses.tree"
                       "../ontology/city-basic.tree"
                       )
                     (if *testing-mode*
@@ -55,10 +55,13 @@
                       (--- ans)
                       (tb/send-text ans chat-id :html)))
         "/photo" (let [address (some-> body city/normalize-address)
-                       ans (sparql/get-house-photo address)]
+                       photo-paths (sparql/get-house-photo-paths address)]
                     (if *testing-mode*
-                      (--- ans)
-                      (tb/send-text ans chat-id :html)))
+                      ; (--- photo-paths)
+                      (doseq [photo-path photo-paths]
+                        (tb/send-photo photo-path "242892670"))
+                      (doseq [photo-path photo-paths]
+                        (tb/send-photo photo-path chat-id))))
         "/nophoto" (let [ans "нетфото"]
                       (if *testing-mode*
                         (--- ans)

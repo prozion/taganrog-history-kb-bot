@@ -17,7 +17,7 @@
       (and (coll? v) (index-of? v category)))))
 
 (defn extract-categories []
-  (let [content (tabtree/parse-tab-tree "../factbase/houses/wikimapia_houses.tree")
+  (let [content (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/wikimapia_houses.tree")
         categories (reduce
                       (fn [acc [k v]]
                         (if (:category v)
@@ -25,7 +25,7 @@
                           acc))
                       {}
                       content)
-        years-addresses (keys (tabtree/parse-tab-tree "../factbase/houses/years.tree"))
+        years-addresses (keys (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/years.tree"))
         result (reduce
                   (fn [acc k]
                     (let [v (categories k)]
@@ -46,5 +46,5 @@
                         :else acc)))
                   ""
                   (sort (minus (keys categories) years-addresses)))]
-    (io/write-to-file "../factbase/generated/years_from_categories.tree" result)
+    (io/write-to-file "../taganrog-history-kb/factbase/generated/years_from_categories.tree" result)
     true))
