@@ -15,19 +15,22 @@
   ))
 
 (def OLD-HOUSES-LIMIT 10)
+(def DEBUG-CHAT-ID "242892670")
 
 (def ^:dynamic *testing-mode* false)
 
 (defn process-command [message]
-  (let [chat-id (get-in message [:chat :id])
+  (let [chat-id (str (get-in message [:chat :id]))
         text (or (:text message) "")
         photo (:photo message)
         command (tb/get-command text)
         body (tb/get-command-body text)]
-    (--- "text = '" text "'")
+    (--- (format "text: '%s' -> command: '%s'" text  command))
     (try
       (case command
-        "/start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
+        "/start" (if *testing-mode*
+                    (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" DEBUG-CHAT-ID)
+                    (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id))
         "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4\">Подробнее</a>" chat-id :html)
         "/init" (do
                     (sparql/init-db
@@ -59,7 +62,7 @@
                     (if *testing-mode*
                       ; (--- photo-paths)
                       (doseq [photo-path photo-paths]
-                        (tb/send-photo photo-path "242892670"))
+                        (tb/send-photo photo-path DEBUG-CHAT-ID))
                       (doseq [photo-path photo-paths]
                         (tb/send-photo photo-path chat-id))))
         "/nophoto" (let [ans "нетфото"]

@@ -6,9 +6,11 @@
             [clojure.java.io :as io]
             [clj-http.client :as http]))
 
-(defn send-text [text chat-id & [parse-mode & _]]
-    ; (println (str base-url "/sendMessage") chat-id text)
-    (let [form-params {:chat_id chat-id ; (str chat-id)
+(defn send-text [text chat-id & [parse-mode server-url & _]]
+; server-url - redirect to localhost when debugging
+    (let [
+          chat-id (str chat-id)
+          form-params {:chat_id chat-id ; (str chat-id)
                        :text text}
           form-params (if parse-mode
                           (merge form-params
@@ -18,7 +20,7 @@
                                                 "HTML")})
                           form-params)]
       (http/post
-        (str base-url "/sendMessage")
+        (str (or server-url base-url) "/sendMessage")
         {:form-params form-params})))
 
 (defn send-photo [photo-filepath chat-id]
@@ -37,6 +39,8 @@
 (defn detect-command-by-first-word [command-string]
   (let [first-word (first (s/split command-string #" "))]
     (cond
+      (re-matches #"^/start\b.*" first-word) "/start"
+      (re-matches #"^/help\b.*" first-word) "/help"
       (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"
       (re-matches #"^/?((info)|(инфо)|(и)|(i)|(street)|(проулицу))\b.*" first-word) "/street"
       (re-matches #"^/?((oldest)|(старые)|(с))\b.*" first-word) "/oldest"
