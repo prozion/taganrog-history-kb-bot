@@ -28,7 +28,7 @@
     (try
       (case command
         "/start" (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id)
-        "/help" (tb/send-text "Доступны такие команды: инфо, старые, фото" chat-id)
+        "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4\">Подробнее</a>" chat-id :html)
         "/init" (do
                     (sparql/init-db
                       "../taganrog-history-kb/factbase/houses/quarters.tree"
