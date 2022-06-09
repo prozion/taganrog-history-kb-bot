@@ -60,15 +60,19 @@
         "/photo" (let [address (some-> body city/normalize-address)
                        photo-paths (sparql/get-house-photo-paths address)]
                     (if *testing-mode*
-                      ; (--- photo-paths)
-                      (doseq [photo-path photo-paths]
-                        (tb/send-photo photo-path DEBUG-CHAT-ID))
-                      (doseq [photo-path photo-paths]
-                        (tb/send-photo photo-path chat-id))))
+                      (--- photo-paths)
+                      (if (empty? photo-paths)
+                        (tb/send-text (format "%s: нет фотографий" (city/get-canonical-address address)) chat-id)
+                        (doseq [photo-path photo-paths]
+                          (tb/send-photo photo-path chat-id)))))
         "/nophoto" (let [ans "нетфото"]
                       (if *testing-mode*
                         (--- ans)
                         (tb/send-text ans chat-id :html)))
+        "/error" (let [msg "Неизвестная команда"]
+                    (if *testing-mode*
+                      (--- msg)
+                      (tb/send-text msg chat-id :html)))
         ; "/info"
         (let [address (some-> body city/normalize-address)
                   ans (if (re-seq #".+\d+" address)

@@ -37,17 +37,21 @@
   (s/replace command-string #"[^А-ЯЁа-яA-Za-z0-9 \-_/]" ""))
 
 (defn detect-command-by-first-word [command-string]
-  (let [first-word (first (s/split command-string #" "))]
-    (cond
-      (re-matches #"^/init\b.*" first-word) "/init"
-      (re-matches #"^/start\b.*" first-word) "/start"
-      (re-matches #"^/help\b.*" first-word) "/help"
-      (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"
-      (re-matches #"^/?((info)|(инфо)|(и)|(i)|(street)|(проулицу))\b.*" first-word) "/street"
-      (re-matches #"^/?((oldest)|(старые)|(с))\b.*" first-word) "/oldest"
-      (re-matches #"^/?((photo)|(фото)|(ф))\b.*" first-word) "/photo"
-      (re-matches #"^/?((nophoto)|(нетфото))\b.*" first-word) "/nophoto"
-      :else "/default")))
+  (try
+    (let [first-word (first (s/split command-string #" "))]
+      (cond
+        (empty? command-string) "/error"
+        (re-matches #"^\s+$" command-string) "/error"
+        (re-matches #"^/init\b.*" first-word) "/init"
+        (re-matches #"^/start\b.*" first-word) "/start"
+        (re-matches #"^/help\b.*" first-word) "/help"
+        (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"
+        (re-matches #"^/?((info)|(инфо)|(и)|(i)|(street)|(проулицу))\b.*" first-word) "/street"
+        (re-matches #"^/?((oldest)|(старые)|(с))\b.*" first-word) "/oldest"
+        (re-matches #"^/?((photo)|(фото)|(ф))\b.*" first-word) "/photo"
+        (re-matches #"^/?((nophoto)|(нетфото))\b.*" first-word) "/nophoto"
+        :else "/default"))
+    (catch Throwable e "/error")))
 
 (defn parse-command [command-string]
   (let [command-string (clean-command-string command-string)
