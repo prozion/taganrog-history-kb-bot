@@ -3,7 +3,7 @@
             [cheshire.core :as cheshire]
             [clojure.string :as s]
             [clojure.set :as set]
-            [org.clojars.prozion.odysseus.io :refer :all]
+            [org.clojars.prozion.odysseus.io :as io :refer :all]
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.text :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
@@ -11,6 +11,7 @@
             [tgn-history-bot.globals :as g]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [org.clojars.prozion.tabtree.output :as output]
+            [clojure.java.shell :as shell]
             ))
 
 (def ^:dynamic *index-tabtree* {})
@@ -20,6 +21,8 @@
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
 (def WM-HOUSES-TABTREE "../factbase/generated/wikimapia_houses.tree")
 (def WM-HOUSES-CSV "export/wikimapia_houses.csv")
+; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
+(def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
 
 (set! *default-data-reader-fn* tagged-literal)
 
@@ -186,3 +189,47 @@
         [:description "описание"]
       ]))
   true)
+
+;;; PHOTO database
+
+(defn make-filepath [address-id photo-url]
+  (let [address-id (name address-id)
+        filename (last (s/split photo-url #"/"))]
+    (str PHOTO-REPOSITORY address-id "/" filename)))
+
+(defn get-wikimapia-items []
+  (-> WM-HOUSES-TABTREE tabtree/parse-tab-tree vals))
+
+(defn download-photo []
+  (let [wikimapia-tabtree (tabtree/parse-tab-tree WM-HOUSES-TABTREE)]
+    (doall
+      (for [item (get-wikimapia-items)]
+        (when (:photo item)
+          (let [address-id (:__id item)
+                photoes (:photo item)
+                photoes (if (coll? photoes) photoes (list photoes))
+                dirpath (make-filepath address-id "")]
+            (when (not (io/file-exists? dirpath))
+              (io/create-directory dirpath))
+            (doall
+              (for [photo-url photoes]
+                (let [filepath (make-filepath address-id photo-url)]
+                  (when (not (io/file-exists? filepath))
+                    (io/copy-from-url photo-url filepath)))))))))
+    true))
+
+(defn resize-images []
+  (let [width 800]
+    (doall
+      (doseq [item (get-wikimapia-items)]
+        (let [dirpath (make-filepath (:__id item) "")]
+          (when (io/file-exists? dirpath)
+            (let [filenames (io/list-files dirpath)
+                  filepaths (map #(str dirpath %) filenames)]
+              (doall
+                (doseq [filepath filepaths]
+                  (do
+                    (--- filepath
+                         (:exit (shell/sh "convert" filepath "-resize" "800x600>" filepath)))
+                    ; (exit)
+                    ))))))))))

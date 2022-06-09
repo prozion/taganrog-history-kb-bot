@@ -3,6 +3,7 @@
             [tgn-history-bot.globals :refer :all]
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
+            [clojure.java.io :as io]
             [clj-http.client :as http]))
 
 (defn send-text [text chat-id & [parse-mode & _]]
@@ -19,6 +20,16 @@
       (http/post
         (str base-url "/sendMessage")
         {:form-params form-params})))
+
+(defn send-photo [photo-filepath chat-id]
+  (http/post
+    (str base-url "/sendPhoto")
+    {:multipart
+      [
+        {:name "chat_id" :content chat-id}
+        {:name "photo" :content (io/file photo-filepath)}
+      ]}
+))
 
 (defn clean-command-string [command-string]
   (s/replace command-string #"[^А-ЯЁа-яA-Za-z0-9 \-_/]" ""))

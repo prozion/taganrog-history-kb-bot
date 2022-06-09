@@ -2,6 +2,7 @@
   (:require
             [clojure.string :as s]
             [tgn-history-bot.handler :refer :all]
+            [tgn-history-bot.botapi :as tb]
             [tgn-history-bot.sparql :as sparql]
             [org.clojars.prozion.odysseus.debug :refer :all]
   ))
@@ -29,3 +30,10 @@
     (--- "\n\n12 старейших домов")
     (emulate-command "старые 12"))
 )
+
+(defn test-send-photo []
+  (let [chat-id "242892670"]
+    (tb/send-photo
+      "/home/denis/data/taganrog-history-kb-photo/Глушко_26/58_full.jpg"
+      ; "https://raw.githubusercontent.com/prozion/taganrog-history-kb-photo/main/%D0%93%D0%BE%D0%B3%D0%BE%D0%BB%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_15/76_full.jpg"
+      chat-id)))
