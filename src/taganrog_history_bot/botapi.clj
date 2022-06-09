@@ -1,6 +1,6 @@
-(ns tgn-history-bot.botapi
+(ns taganrog-history-bot.botapi
   (:require [clojure.string :as s]
-            [tgn-history-bot.globals :refer :all]
+            [taganrog-history-bot.globals :refer :all]
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [clojure.java.io :as io]
@@ -39,6 +39,7 @@
 (defn detect-command-by-first-word [command-string]
   (let [first-word (first (s/split command-string #" "))]
     (cond
+      (re-matches #"^/init\b.*" first-word) "/init"
       (re-matches #"^/start\b.*" first-word) "/start"
       (re-matches #"^/help\b.*" first-word) "/help"
       (and (re-matches #"^/?((info)|(инфо)|(и)|(i))\b.*" first-word) (re-seq #"\d+" command-string)) "/info"

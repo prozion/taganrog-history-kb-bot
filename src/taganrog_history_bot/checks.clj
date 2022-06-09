@@ -1,10 +1,10 @@
 ; functions to check consistency of the knowledge base
 
-(ns tgn-history-bot.checks
+(ns taganrog-history-bot.checks
   (:require [clojure.string :as s]
             [clojure.set :as set]
-            [tgn-history-bot.sparql :as sparql]
-            [tgn-history-bot.city :as city]
+            [taganrog-history-bot.sparql :as sparql]
+            [taganrog-history-bot.city :as city]
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [org.clojars.prozion.odysseus.io :as io]

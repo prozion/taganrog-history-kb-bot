@@ -1,4 +1,4 @@
-(ns tgn-history-bot.globals)
+(ns taganrog-history-bot.globals)
 
 ; (def settings
 ;   (read-string (slurp "src/tgn_history_bot/settings.clj")))
@@ -6,8 +6,8 @@
 (def settings {
     :token "5223345298:AAGZ8JaU-kY5atE97EAVuAlX7ScuBXGSAEs" ; history
     :name "История Таганрога"
-    :username "tgn_history_bot"
-    :bot-url "https://t.me/tgn_history_bot"
+    :username "taganrog_bot"
+    :bot-url "https://t.me/taganrog_bot"
     :webhook-url "https://bots.denis-shirshov.ru/tgn-history"
     ; :wikimapia-api-key "34FA424A-BD2C7000-C26DADD4-E4E6B789-33EB6DB7-D6B4ED09-07BA07FA-CAC4C15B"
     ; :wikimapia-api-key "34FA424A-A88E454B-8A03C6DA-91B76601-6DDA60A2-D99A9BB9-BA46AA66-8315E1D"

@@ -1,17 +1,17 @@
-(ns tgn-history-bot.handler
+(ns taganrog-history-bot.handler
   (:require
             ; [ring.adapter.jetty :refer :all]
             [clojure.string :as s]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [cheshire.core :as cheshire]
-            [tgn-history-bot.botapi :as tb]
+            [taganrog-history-bot.botapi :as tb]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [org.clojars.prozion.odysseus.debug :refer :all]
-            [tgn-history-bot.kb :as kb]
-            [tgn-history-bot.security :as security]
-            [tgn-history-bot.sparql :as sparql]
-            [tgn-history-bot.city :as city]
+            [taganrog-history-bot.kb :as kb]
+            [taganrog-history-bot.security :as security]
+            [taganrog-history-bot.sparql :as sparql]
+            [taganrog-history-bot.city :as city]
   ))
 
 (def OLD-HOUSES-LIMIT 10)
@@ -31,14 +31,14 @@
         "/start" (if *testing-mode*
                     (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" DEBUG-CHAT-ID)
                     (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id))
-        "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4\">Подробнее</a>" chat-id :html)
+        "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot#readme\">Подробнее</a>" chat-id :html)
         "/init" (do
                     (sparql/init-db
                       "../taganrog-history-kb/factbase/houses/quarters.tree"
                       "../taganrog-history-kb/factbase/houses/wikimapia_houses.tree"
                       "../taganrog-history-kb/factbase/houses/years.tree"
                       "../taganrog-history-kb/factbase/houses/houses.tree"
-                      "../ontology/city-basic.tree"
+                      "../taganrog-history-kb/ontology/city-basic.tree"
                       )
                     (if *testing-mode*
                       (--- "База знаний инициализирована")
@@ -81,7 +81,7 @@
         )
     (catch Throwable e
       (if *testing-mode*
-        (--- "ошибка ввода")
+        (--- (format "ошибка: %s" (.getMessage e)))
         (tb/send-text (format "ошибка: %s" (.getMessage e)) chat-id))))))
 
 (defroutes app

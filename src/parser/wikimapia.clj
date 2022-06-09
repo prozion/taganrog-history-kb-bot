@@ -7,8 +7,8 @@
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.text :refer :all]
             [org.clojars.prozion.odysseus.utils :refer :all]
-            [tgn-history-bot.city :as city]
-            [tgn-history-bot.globals :as g]
+            [taganrog-history-bot.city :as city]
+            [taganrog-history-bot.globals :as g]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [org.clojars.prozion.tabtree.output :as output]
             [clojure.java.shell :as shell]
@@ -20,7 +20,7 @@
 (def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
 (def WM-HOUSES-TABTREE "../taganrog-history-kb/factbase/generated/wikimapia_houses.tree")
-(def WM-HOUSES-CSV "export/wikimapia_houses.csv")
+(def WM-HOUSES-CSV "../taganrog-history-kb/_export/wikimapia_houses.csv")
 ; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
 (def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
 

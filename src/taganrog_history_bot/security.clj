@@ -1,4 +1,4 @@
-(ns tgn-history-bot.security
+(ns taganrog-history-bot.security
   (:require
     [clojure.string :as s]))
 

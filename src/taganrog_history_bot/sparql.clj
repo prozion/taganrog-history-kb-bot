@@ -1,4 +1,4 @@
-(ns tgn-history-bot.sparql
+(ns taganrog-history-bot.sparql
   (:require
             [clojure.string :as s]
             [jena.triplestore :as ts :refer [with-transaction query-sparql]]
@@ -8,11 +8,11 @@
             [org.clojars.prozion.odysseus.debug :refer :all]
             [org.clojars.prozion.odysseus.io :as io]
             [org.clojars.prozion.odysseus.text :as text]
-            [tgn-history-bot.city :as city]
+            [taganrog-history-bot.city :as city]
             [org.clojars.prozion.tabtree.rdf :as rdf]))
 
-(def RDF_FILE "../export/kb.ttl")
-(def DATABASE_PATH "/var/db/jena/tgn-history")
+(def RDF_FILE "../taganrog-history-kb/_export/kb.ttl")
+(def DATABASE_PATH "/var/db/jena/taganrog-history")
 (def PHOTO_DATABASE_PATH "../../data/taganrog-history-kb-photo")
 
 (defn get-db []
@@ -31,9 +31,6 @@
         _ (io/write-to-file RDF_FILE joined-rdf)
         db (ts/init-db DATABASE_PATH RDF_FILE)]
       db))
-
-(defn init-db-from-rdf []
-  (ts/init-db DATABASE_PATH "../export/kb-mini.ttl"))
 
 (defn get-all-node-info [id]
   (let [result (some->>

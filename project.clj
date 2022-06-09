@@ -1,6 +1,6 @@
-(defproject tgn-history-bot "0.3.1"
+(defproject taganrog-history-bot "0.3.1"
   :description "Бот над базой знаний о домах и улицах Таганрога"
-  :url "https://github.com/prozion/tgn-history-bot"
+  :url "https://github.com/prozion/taganrog-history-kb-bot"
 
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -27,21 +27,21 @@
             ; [lein-immutant "2.1.0"]
             ]
 
-  :ring {:handler tgn-history-bot.handler/app
+  :ring {:handler taganrog-history-bot.handler/app
          :port 1979
         }
 
-  :main tgn-history-bot.handler
+  :main taganrog-history-bot.handler
 
   :target-path "target/%s"
 
   :profiles {:dev {:dependencies
                     [[javax.servlet/servlet-api "2.5"]
                      [ring-mock "0.1.5"]]
-                   ; :repl-options {:init-ns tgn-history-bot.checks}}
+                   ; :repl-options {:init-ns taganrog-history-bot.checks}}
                    ; :repl-options {:init-ns parser.wikimapia}}
                    ; :repl-options {:init-ns scripts.sorter}}
                    ; :repl-options {:init-ns scripts.extract-info}}
-                   :repl-options {:init-ns tgn-history-bot.test-handler}}
-                   ; :repl-options {:init-ns tgn-history-bot.handler}}
+                   :repl-options {:init-ns taganrog-history-bot.test-handler}}
+                   ; :repl-options {:init-ns taganrog-history-bot.handler}}
              :uberjar {:aot :all}})

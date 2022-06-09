@@ -1,9 +1,9 @@
-(ns tgn-history-bot.test-handler
+(ns taganrog-history-bot.test-handler
   (:require
             [clojure.string :as s]
-            [tgn-history-bot.handler :refer :all]
-            [tgn-history-bot.botapi :as tb]
-            [tgn-history-bot.sparql :as sparql]
+            [taganrog-history-bot.handler :refer :all]
+            [taganrog-history-bot.botapi :as tb]
+            [taganrog-history-bot.sparql :as sparql]
             [org.clojars.prozion.odysseus.debug :refer :all]
   ))
 

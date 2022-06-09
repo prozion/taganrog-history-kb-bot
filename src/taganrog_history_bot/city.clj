@@ -1,4 +1,4 @@
-(ns tgn-history-bot.city
+(ns taganrog-history-bot.city
   (:require
     [clojure.string :as s]
     [org.clojars.prozion.tabtree.tabtree :as tabtree]

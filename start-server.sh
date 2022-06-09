@@ -4,7 +4,7 @@ user=denis
 
 source stop-server.sh
 
-su -c 'cd ~/projects/tgn-history-bot' $user
+su -c 'cd ~/projects/taganrog-history-bot' $user
 source start-ring-server.sh
 
 caddy run --config /etc/caddy/Caddyfile

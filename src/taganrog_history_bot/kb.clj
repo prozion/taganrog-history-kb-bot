@@ -1,4 +1,4 @@
-(ns tgn-history-bot.kb
+(ns taganrog-history-bot.kb
   (:require
     [clojure.string :as s]
     [org.clojars.prozion.tabtree.tabtree :as tabtree]))
