@@ -19,7 +19,7 @@
 
 (def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
-(def WM-HOUSES-TABTREE "../taganrog-history-kb/factbase/generated/wikimapia_houses.tree")
+(def WM-HOUSES-TABTREE "../taganrog-history-kb/_generated/wikimapia_houses.tree")
 (def WM-HOUSES-CSV "../taganrog-history-kb/_export/wikimapia_houses.csv")
 ; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
 (def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
@@ -48,7 +48,6 @@
 
 (defn id->edn [id]
   (try
-    (binding [*cached-response* (read-string (slurp RESPONSE-CACHE))]
       (let [response (get-response-by-id id)
             status (:status response)
             _ (when (not= status 200)
@@ -63,27 +62,27 @@
             categories (map #(% "title") tags)
             photoes (map #(% "full_url") (get-in res-edn ["photos"]))
             ]
-          {:id (res-edn "id")
-           :title (res-edn "title")
-           :description (-> description remove-urls s/trim handle-colon)
-           :category categories
+          {:wm-id (res-edn "id")
+           :wm-название (res-edn "title")
+           :описание (-> description remove-urls s/trim handle-colon)
+           :wm-категория categories
            :url urls
            :wm-url (get-in res-edn ["availableLanguages" "ru" "object_url"])
            ; :address (some-> (res-edn "location") (#(format "%s %s" (% "street") (% "housenumber"))) city/normalize-address)
-           :street-string (get-in res-edn ["location" "street"])
-           :housenumber (get-in res-edn ["location" "housenumber"])
+           :wm-строка-улицы (get-in res-edn ["location" "street"])
+           :wm-номер-дома (get-in res-edn ["location" "housenumber"])
            :lat (get-in res-edn ["location" "lat"])
            :lon (get-in res-edn ["location" "lon"])
            :north (get-in res-edn ["location" "north"])
            :east (get-in res-edn ["location" "east"])
            :south (get-in res-edn ["location" "south"])
            :west (get-in res-edn ["location" "west"])
-           :photo photoes
-           :author (get-in res-edn ["edit_info" "user_name"])
-           :comments-n (count (get-in res-edn ["comments"]))
+           :фото photoes
+           :wm-редактор (get-in res-edn ["edit_info" "user_name"])
+           :wm-число-комментариев (count (get-in res-edn ["comments"]))
            })
       (catch Exception e
-        {:id id :error (.getMessage e)}))))
+        {:wm-id id :error (.getMessage e)})))
 
 ; (defn get-objects-inside-the-area [bbox]
 ;   (let [request-url (format
@@ -114,20 +113,20 @@
 (defn clean-up [edn]
   (->> edn
       (remove :error)
-      (filter #(or (:street-string %) (:housenumber %) (:title %)))))
+      (filter #(or (:wm-строка-улицы %) (:wm-номер-дома %) (:wm-название %)))))
 
 (defn get-name-by-index [id]
   (let [item (first (filter #(= id (:wm %)) (vals *index-tabtree*)))]
     (and item (name (:__id item)))))
 
 (defn get-object-name [m]
-  (let [address (city/normalize-address (:street-string m) (:housenumber m))
-        title (city/normalize-title (:title m))
-        name-by-index (get-name-by-index (:id m))]
+  (let [address (city/normalize-address (:wm-строка-улицы m) (:wm-номер-дома m))
+        title (city/normalize-title (:wm-название m))
+        name-by-index (get-name-by-index (:wm-id m))]
     (cond
-      (or (:street-string m) (:housenumber m)) address
+      (and (:wm-строка-улицы m) (:wm-номер-дома m)) address
       name-by-index name-by-index
-      (:title m) title
+      (:wm-название m) title
       :else "_")))
 
 (defn edn->shallow-tabtree [edn root-name]
@@ -143,14 +142,15 @@
                       (cond
                         (not val) acc2
                         (and (number? val) (= 0 val)) acc2
-                        (and (string? val) (empty? val)) acc2
+                        (and (or (coll? val) (string? val))
+                             (empty? (remove nil? val))) acc2
                         :else
                           (format "%s %s:%s"
                                   acc2
                                   (name k)
                                   (process-val val)))))
                     ""
-                    (sort-by-order (keys m) [:id :title :street-string :housenumber :lat :lon :north :west :east :south :comments-n :photo :author :category :wm-url :url :description]))))
+                    (sort-by-order (keys m) [:id :wm-название :wm-строка-улицы :wm-номер-дома :lat :lon :north :west :east :south :wm-число-комментариев :фото :wm-редактор :wm-категория :wm-url :url :oписание]))))
     (str root-name "\n")
     (sort #(city/compare-addresses
               (get-object-name %1)
@@ -158,10 +158,11 @@
           (clean-up edn))))
 
 (defn build-tabtree []
-  (binding [*index-tabtree* (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/indexes.tree")]
+  (binding [*index-tabtree* (tabtree/parse-tab-tree "../taganrog-history-kb/facts/houses/indexes.tree")
+            *cached-response* (read-string (slurp RESPONSE-CACHE))]
     (let [
           ; processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
-          objects-tabtree (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/houses/indexes.tree")
+          objects-tabtree (tabtree/parse-tab-tree "../taganrog-history-kb/facts/houses/indexes.tree")
           house-wm-ids (remove nil? (map :wm (vals objects-tabtree)))
           houses-edn (map id->edn house-wm-ids)
           tabtree-houses (edn->shallow-tabtree houses-edn "processed_houses")]
@@ -176,17 +177,17 @@
       :delimeter "\t"
       :headers [
         [:__id "адрес"]
-        [:title "название"]
-        [:category "категория"]
-        [:street-string "улица"]
-        [:housenumber "номер дома"]
+        [:wm-название "название"]
+        [:wm-категория "категория"]
+        [:wm-строка-улицы "улица"]
+        [:wm-номер-дома "номер дома"]
         [:lat "широта"]
         [:lon "долгота"]
         [:id "wmid"]
         [:wm-url "wikimapia"]
         [:url "ссылки"]
-        [:author "автор"]
-        [:description "описание"]
+        [:wm-редактор "автор"]
+        [:описание "описание"]
       ]))
   true)
 
@@ -204,9 +205,9 @@
   (let [wikimapia-tabtree (tabtree/parse-tab-tree WM-HOUSES-TABTREE)]
     (doall
       (for [item (get-wikimapia-items)]
-        (when (:photo item)
+        (when (:фото item)
           (let [address-id (:__id item)
-                photoes (:photo item)
+                photoes (:фото item)
                 photoes (if (coll? photoes) photoes (list photoes))
                 dirpath (make-filepath address-id "")]
             (when (not (io/file-exists? dirpath))

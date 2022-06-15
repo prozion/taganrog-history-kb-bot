@@ -1,7 +1,7 @@
 (ns taganrog-history-bot.sparql
   (:require
             [clojure.string :as s]
-            [jena.triplestore :as ts :refer [with-transaction query-sparql]]
+            [jena.triplestore :as ts :refer [query-sparql]]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [org.clojars.prozion.odysseus.time :as time]
@@ -9,35 +9,25 @@
             [org.clojars.prozion.odysseus.io :as io]
             [org.clojars.prozion.odysseus.text :as text]
             [taganrog-history-bot.city :as city]
+            [taganrog-history-bot.globals :refer :all]
             [org.clojars.prozion.tabtree.rdf :as rdf]))
 
-(def RDF_FILE "../taganrog-history-kb/_export/kb.ttl")
-(def DATABASE_PATH "/var/db/jena/taganrog-history")
+; (def RDF_FILE "../taganrog-history-kb/_export/kb.ttl")
+
 (def PHOTO_DATABASE_PATH "../../data/taganrog-history-kb-photo")
 
 (defn get-db []
   (ts/init-database DATABASE_PATH))
 
-(defn init-db [& tree-files]
-  (let [
-        tabtrees (map tabtree/parse-tab-tree tree-files)
-        joined-tabtree (apply merge-with merge tabtrees)
-        joined-rdf (rdf/to-rdf
-                      joined-tabtree
-                      :namespaces {"" "https://purl.org/taganrog#"
-                                  "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                                  "rdfs" "http://www.w3.org/2000/01/rdf-schema#"
-                                  "owl" "http://www.w3.org/2002/07/owl#"})
-        _ (io/write-to-file RDF_FILE joined-rdf)
-        db (ts/init-db DATABASE_PATH RDF_FILE)]
-      db))
+(defn close-db []
+  (.close (get-db)))
 
 (defn get-all-node-info [id]
   (let [result (some->>
                   (query-sparql (get-db)
                     (s/replace
                       "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                       prefix : <https://purl.org/taganrog#>
+                       prefix : <https://purl.org/taganrog/city#>
                        prefix owl: <http://www.w3.org/2002/07/owl#>
                        SELECT ?predicate ?object
                        WHERE {
@@ -47,6 +37,9 @@
                        id))
                   ts/result->hash-no-ns)]
       result))
+
+(defn print-all-node-info [id]
+  (---- (get-all-node-info id)))
 
 (defn merge-query-results [results]
   (reduce (fn [acc result]
@@ -60,29 +53,34 @@
       {}
       results))
 
+(defn get-single-year [years]
+  (if (coll? years)
+    (str (apply min (map ->integer years)))
+    years))
+
 (defn get-house-info [address]
   (let [query-result (->>
                         (query-sparql (get-db)
                           (s/replace
                             "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                             prefix : <https://purl.org/taganrog#>
                              prefix owl: <http://www.w3.org/2002/07/owl#>
-                             SELECT ?description ?quarter ?year ?photo ?url ?title
+                             prefix : <https://purl.org/taganrog/city#>
+                             SELECT ?description ?quarter ?year ?photo ?url ?title ?alias_address
                              WHERE {
-                               OPTIONAL { :<address-id> :description ?description }
-                               OPTIONAL { ?quarter :has_building :<address-id> }
-                               OPTIONAL { ?quarter :has_building ?t.
-                                          ?t :eq :<address-id> }
-                               OPTIONAL { :<address-id> :built ?year }
-                               OPTIONAL { :<address-id> :photo ?photo }
+                               OPTIONAL { :<address-id> :описание ?description }
+                               OPTIONAL { :<address-id> owl:sameAs ?alias_address }
+                               OPTIONAL { :<address-id> :квартал ?quarter }
+                               OPTIONAL { :<address-id> :начало-здания ?year }
+                               OPTIONAL { :<address-id> :фото ?photo }
                                OPTIONAL { :<address-id> :url ?url }
-                               OPTIONAL { :<address-id> :title ?title }
+                               OPTIONAL { :<address-id> :название ?title }
                              }"
                              #"<address-id>"
                              address))
                         ts/result->hash-no-ns
                         merge-query-results)
         query-result (and query-result (merge query-result {:normalized-address address}))
+        year-result (get-single-year (query-result :year))
         output-parameter (fn [value & args]
                             (let [header (first args)]
                               (if value
@@ -104,10 +102,12 @@
               "")
             ;; Заголовок
             (output-parameter (some-> query-result :title text/boldify))
+            ;; Главный адрес
+            (when (not (:description query-result)) (output-parameter (:alias_address query-result) "См."))
             ;; Квартал
             (output-parameter (:quarter query-result) "Квартал:")
             ;; Год постройки
-            (output-parameter (:year query-result) "Построен:")
+            (output-parameter year-result "Построен:")
             ;; Описание
             (output-parameter (:description query-result))
             ;; Картинка
@@ -121,11 +121,11 @@
                   (query-sparql (get-db)
                     (s/replace
                       "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                       prefix : <https://purl.org/taganrog#>
                        prefix owl: <http://www.w3.org/2002/07/owl#>
+                       prefix : <https://purl.org/taganrog/city#>
                        SELECT ?photo
                        WHERE {
-                         :<address-id> :photo ?photo
+                         :<address-id> :фото ?photo
                        }"
                        #"<address-id>"
                        address))
@@ -153,13 +153,13 @@
             (query-sparql (get-db)
               (s/replace
                 "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                 prefix : <https://purl.org/taganrog#>
                  prefix owl: <http://www.w3.org/2002/07/owl#>
+                 prefix : <https://purl.org/taganrog/city#>
                  SELECT ?house
                  WHERE {
-                   ?house rdf:type :House .
-                   ?house :street :<street> .
-                   ?house :description ?description .
+                   ?house rdf:type :Здание .
+                   ?house :улица :<street> .
+                   ?house :описание ?description .
                  }"
                  #"<street>"
                  street))
@@ -178,11 +178,11 @@
                     (query-sparql (get-db)
                       (format
                         "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                         prefix : <https://purl.org/taganrog#>
+                         prefix : <https://purl.org/taganrog/city#>
                          SELECT ?house ?date
                          WHERE {
-                           ?house rdf:type :House .
-                           ?house :built ?date .
+                           ?house rdf:type :Здание .
+                           ?house :построено ?date .
                          }"))
                     ts/result->hash-no-ns)
         sorted-dates (sort

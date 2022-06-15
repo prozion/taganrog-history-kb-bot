@@ -30,3 +30,5 @@
 })
 
 (def base-url (format "https://api.telegram.org/bot%s" (:token settings)))
+
+(def DATABASE_PATH "/var/db/jena/taganrog-history")    

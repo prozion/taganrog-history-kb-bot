@@ -26,13 +26,13 @@
     (into [] (set/difference (set houses1) (set houses2)))))
 
 (defn all-dates-in-blocks []
-  (minus-addresses "../taganrog-history-kb/factbase/houses/dates.tree" "../taganrog-history-kb/factbase/houses/blocks.tree"))
+  (minus-addresses "../taganrog-history-kb/facts/houses/dates.tree" "../taganrog-history-kb/facts/houses/blocks.tree"))
 
 (defn all-names-in-blocks []
-  (minus-addresses "../taganrog-history-kb/factbase/houses/names.tree" "../taganrog-history-kb/factbase/houses/blocks.tree"))
+  (minus-addresses "../taganrog-history-kb/facts/houses/names.tree" "../taganrog-history-kb/facts/houses/blocks.tree"))
 
 (defn duplicated-ids []
-  (let [lines (io/read-file-by-lines "../taganrog-history-kb/factbase/houses/quarters.tree")
+  (let [lines (io/read-file-by-lines "../taganrog-history-kb/facts/houses/quarters.tree")
         ids (map (fn [line] (-> line (s/replace "\t" "") (s/split #"\s+") first)) lines)
         duplicates (->> ids
                         frequencies

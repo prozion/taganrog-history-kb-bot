@@ -8,9 +8,11 @@
             [taganrog-history-bot.botapi :as tb]
             [org.clojars.prozion.odysseus.utils :refer :all]
             [org.clojars.prozion.odysseus.debug :refer :all]
+            [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [taganrog-history-bot.kb :as kb]
             [taganrog-history-bot.security :as security]
             [taganrog-history-bot.sparql :as sparql]
+            [taganrog-history-bot.ontologies :as ontologies]
             [taganrog-history-bot.city :as city]
   ))
 
@@ -33,13 +35,20 @@
                     (tb/send-text "Исторический бот Таганрога желает вам доброго времени земных суток!" chat-id))
         "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot#readme\">Подробнее</a>" chat-id :html)
         "/init" (do
-                    (sparql/init-db
-                      "../taganrog-history-kb/factbase/houses/quarters.tree"
-                      "../taganrog-history-kb/factbase/houses/wikimapia_houses.tree"
-                      "../taganrog-history-kb/factbase/houses/years.tree"
-                      "../taganrog-history-kb/factbase/houses/houses.tree"
-                      "../taganrog-history-kb/ontology/city-basic.tree"
-                      )
+                    (ontologies/init-db {
+                        :taganrog_facts
+                             ["../taganrog-history-kb/facts/_namespaces.tree"
+                              "../taganrog-history-kb/facts/houses/quarters.tree"
+                              "../taganrog-history-kb/facts/houses/wikimapia_houses.tree"
+                              "../taganrog-history-kb/facts/houses/years.tree"
+                              "../taganrog-history-kb/facts/houses/houses.tree"]
+                        :city_ontology
+                             [
+                              "../taganrog-history-kb/ontology/city.tree"
+                              "../taganrog-history-kb/ontology/city_sources.tree"
+                              "../taganrog-history-kb/ontology/city_time.tree"
+                              "../taganrog-history-kb/ontology/city_wikimapia.tree"]}
+                      :reasoner :owl-micro)
                     (if *testing-mode*
                       (--- "База знаний инициализирована")
                       (tb/send-text "База знаний инициализирована." chat-id))

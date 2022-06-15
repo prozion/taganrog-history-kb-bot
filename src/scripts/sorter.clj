@@ -36,4 +36,4 @@
         (io/write-to-file target-file (tio/tabtree->string indexed-tabtree :sorter address-sorter)))))
 
 (defn sort-houses []
-  (sort-tabtree "../taganrog-history-kb/factbase/houses/houses.tree" "../taganrog-history-kb/factbase/houses/houses_.tree"))
+  (sort-tabtree "../taganrog-history-kb/facts/houses/houses.tree" "../taganrog-history-kb/facts/houses/houses_.tree"))

@@ -6,7 +6,7 @@
     [org.clojars.prozion.odysseus.utils :refer :all]
     [org.clojars.prozion.odysseus.text :as text]))
 
-(def ADDRESSES (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/streets/ids.tree"))
+(def ADDRESSES (tabtree/parse-tab-tree "../taganrog-history-kb/facts/streets/ids.tree"))
 
 (defn normalize-address
   ([address-string]
@@ -20,8 +20,8 @@
         (s/replace #"(\bulitsa\s+)|(\bul\.?\s+)|(\bper\.?\s+)|(\bpereulok\s+)|(\bdom\s+)" "")
         (s/replace "." "")
         (s/replace #"(\s+корп\.?\s+)|(\s+корпус\s+)" "-")
-        (s/replace #"(\s+пл\.?\s+)" "площадь")
-        (s/replace #"(\s+бул\.?\s+)" "бульвар")
+        (s/replace #"((?<=\s+)пл\.?(?=\s+))" "площадь")
+        (s/replace #"((?<=\s+)бул\.?(?=(\s+|$)))" "бульвар")
         (s/replace #"антона\s*" "") ; Антона Глушко -> Глушко
         (s/replace "grecheskaya" "греческая")
         (s/replace "petrovskaya" "петровская")
@@ -31,7 +31,10 @@
         (s/replace #"(-й)|(-я)" "")
         (s/replace #"\s+" " ")
         s/trim
-        ((fn [s] (s/join "_" (map s/capitalize (s/split s #" ")))))))
+        ((fn [s] (s/join "_" (map s/capitalize (s/split s #" ")))))
+        (s/replace #"_Бульвар_" "_бульвар_")
+        (s/replace #"_Спуск_" "_спуск_")
+        ))
   ([street housenumber]
     (let [housenumber (-> housenumber
                           (or "")

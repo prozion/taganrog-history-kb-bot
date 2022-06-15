@@ -13,7 +13,7 @@
                  [compojure "1.6.2"]
                  [cheshire "5.10.2"]
                  [org.clojars.prozion/odysseus "0.1.4"]
-                 [org.clojars.prozion/tabtree "0.5.3"]
+                 [org.clojars.prozion/tabtree "0.5.4"]
                  [org.apache.jena/jena-arq "3.2.0"]
                  [org.apache.jena/jena-iri "3.2.0"]
                  [org.apache.jena/jena-tdb "3.2.0"]

@@ -16,7 +16,7 @@
       (str item)))
 
 (defn get-streets [select-fn]
-  (let [streets (tabtree/parse-tab-tree "../taganrog-history-kb/factbase/streets.tree")
+  (let [streets (tabtree/parse-tab-tree "../taganrog-history-kb/facts/streets.tree")
         filtered-street-ids (select-fn streets)
         street-names (map id->name filtered-street-ids)]
         ; _ (println 2222 street-names)
