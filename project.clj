@@ -12,8 +12,8 @@
                  [ring/ring-jetty-adapter "1.7.1"]
                  [compojure "1.6.2"]
                  [cheshire "5.10.2"]
-                 [org.clojars.prozion/odysseus "0.1.4"]
-                 [org.clojars.prozion/tabtree "0.5.4"]
+                 [org.clojars.prozion/odysseus "0.1.7"]
+                 [org.clojars.prozion/tabtree "0.6.5"]
                  [org.apache.jena/jena-arq "3.2.0"]
                  [org.apache.jena/jena-iri "3.2.0"]
                  [org.apache.jena/jena-tdb "3.2.0"]
@@ -39,9 +39,9 @@
                     [[javax.servlet/servlet-api "2.5"]
                      [ring-mock "0.1.5"]]
                    ; :repl-options {:init-ns taganrog-history-bot.checks}}
-                   ; :repl-options {:init-ns parser.wikimapia}}
+                   :repl-options {:init-ns parser.wikimapia}}
                    ; :repl-options {:init-ns scripts.sorter}}
                    ; :repl-options {:init-ns scripts.extract-info}}
-                   :repl-options {:init-ns taganrog-history-bot.test-handler}}
+                   ; :repl-options {:init-ns taganrog-history-bot.test-handler}}
                    ; :repl-options {:init-ns taganrog-history-bot.handler}}
              :uberjar {:aot :all}})

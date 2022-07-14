@@ -32,7 +32,7 @@
   (minus-addresses "../taganrog-history-kb/facts/houses/names.tree" "../taganrog-history-kb/facts/houses/blocks.tree"))
 
 (defn duplicated-ids []
-  (let [lines (io/read-file-by-lines "../taganrog-history-kb/facts/houses/quarters.tree")
+  (let [lines (io/read-file-by-lines "../taganrog-history-kb/facts/quarters/quarters_houses.tree")
         ids (map (fn [line] (-> line (s/replace "\t" "") (s/split #"\s+") first)) lines)
         duplicates (->> ids
                         frequencies

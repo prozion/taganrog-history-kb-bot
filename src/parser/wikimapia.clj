@@ -15,12 +15,14 @@
             ))
 
 (def ^:dynamic *index-tabtree* {})
+(def ^:dynamic *quarters-index-tabtree* {})
 (def ^:dynamic *cached-response* {})
 
 (def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
 (def WM-HOUSES-TABTREE "../taganrog-history-kb/_generated/wikimapia_houses.tree")
 (def WM-HOUSES-CSV "../taganrog-history-kb/_export/wikimapia_houses.csv")
+(def WM-QUARTERS-TABTREE "../taganrog-history-kb/_generated/quarters.tree")
 ; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
 (def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
 
@@ -30,16 +32,20 @@
   "HTTP response in edn format either from server or cache, that contains real data"
   (get-in (some-> response :body cheshire/parse-string) ["location" "lat"]))
 
-(defn get-response-by-id [id]
-  (let [response (or (*cached-response* id) {})
-        truly-read? (fruitful-response? response)]
+(defn get-response-by-id [id response-cache-file]
+  (let [cached-responses (slurp response-cache-file)
+        cached-responses (if (empty? cached-responses) {} cached-responses)
+        cached-responses (read-string cached-responses)
+        cached-response (cached-responses id)
+        truly-read? (fruitful-response? cached-response)]
+    ; (--- 111 truly-read? (keys cached-responses))
     (or
-      (and truly-read? (do (p ".") response))
+      (and truly-read? (do (p ".") cached-response))
       (let [response (http/get
                         (format "http://api.wikimapia.org/?function=place.getbyid&key=%s&id=%s&language=ru&format=json" (:wikimapia-api-key g/settings) id))
             _ (p (if (fruitful-response? response) "+" "-"))
-            new-cached-response (conj *cached-response* {id response})]
-        (write-to-file RESPONSE-CACHE (pr-str new-cached-response))
+            new-cached-response (merge cached-responses {id response})]
+        (spit response-cache-file (pr-str new-cached-response))
         response))))
 
 (defn handle-colon [text]
@@ -48,7 +54,8 @@
 
 (defn id->edn [id]
   (try
-      (let [response (get-response-by-id id)
+      (let [
+            response (get-response-by-id id RESPONSE-CACHE)
             status (:status response)
             _ (when (not= status 200)
                 (throw (Exception. (format "Response status is: %s" status))))
@@ -61,6 +68,13 @@
             tags (res-edn "tags")
             categories (map #(% "title") tags)
             photoes (map #(% "full_url") (get-in res-edn ["photos"]))
+            polygon (get-in res-edn ["polygon"])
+            polygon-sequence
+              (reduce
+                (fn [acc coors]
+                  (concat acc [(coors "x") (coors "y")]))
+                []
+                polygon)
             ]
           {:wm-id (res-edn "id")
            :wm-название (res-edn "title")
@@ -77,6 +91,7 @@
            :east (get-in res-edn ["location" "east"])
            :south (get-in res-edn ["location" "south"])
            :west (get-in res-edn ["location" "west"])
+           :polygon polygon-sequence
            :фото photoes
            :wm-редактор (get-in res-edn ["edit_info" "user_name"])
            :wm-число-комментариев (count (get-in res-edn ["comments"]))
@@ -130,7 +145,6 @@
       :else "_")))
 
 (defn edn->shallow-tabtree [edn root-name]
-  (--- (count edn))
   (reduce
     (fn [acc m]
         (format "%s\t%s%s\n"
@@ -157,7 +171,7 @@
               (get-object-name %2))
           (clean-up edn))))
 
-(defn build-tabtree []
+(defn build-houses-tabtree []
   (binding [*index-tabtree* (tabtree/parse-tab-tree "../taganrog-history-kb/facts/houses/indexes.tree")
             *cached-response* (read-string (slurp RESPONSE-CACHE))]
     (let [
@@ -167,6 +181,17 @@
           houses-edn (map id->edn house-wm-ids)
           tabtree-houses (edn->shallow-tabtree houses-edn "processed_houses")]
       (write-to-file WM-HOUSES-TABTREE tabtree-houses)
+      true)))
+
+(defn build-quarters-tabtree []
+  (binding [*index-tabtree* (tabtree/parse-tab-tree "../taganrog-history-kb/facts/quarters/indexes.tree")]
+    (let [
+          ; processed-houses (read-string (slurp WM-HOUSES-CACHED-EDN))
+          objects-tabtree (tabtree/parse-tab-tree "../taganrog-history-kb/facts/quarters/indexes.tree")
+          quarters-wm-ids (remove nil? (map :wm (vals objects-tabtree)))
+          quarters-edn (map id->edn quarters-wm-ids)
+          tabtree-quarters (edn->shallow-tabtree quarters-edn "processed_quarters")]
+      (write-to-file WM-QUARTERS-TABTREE tabtree-quarters)
       true)))
 
 (defn build-csv []
