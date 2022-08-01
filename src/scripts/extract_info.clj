@@ -17,7 +17,7 @@
       (and (coll? v) (index-of? v category)))))
 
 (defn extract-categories []
-  (let [content (tabtree/parse-tab-tree "../taganrog-history-kb/facts/houses/wikimapia_houses.tree")
+  (let [content (tabtree/parse-tab-tree "../taganrog-history-kb/facts/houses/houses_wikimapia.tree")
         categories (reduce
                       (fn [acc [k v]]
                         (if (:category v)

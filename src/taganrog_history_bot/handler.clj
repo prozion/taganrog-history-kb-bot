@@ -39,7 +39,7 @@
                         :taganrog_facts
                              ["../taganrog-history-kb/facts/_namespaces.tree"
                               "../taganrog-history-kb/facts/quarters/quarters_houses.tree"
-                              "../taganrog-history-kb/facts/houses/wikimapia_houses.tree"
+                              "../taganrog-history-kb/facts/houses/houses_wikimapia.tree"
                               "../taganrog-history-kb/facts/houses/years.tree"
                               "../taganrog-history-kb/facts/houses/houses.tree"]
                         :city_ontology

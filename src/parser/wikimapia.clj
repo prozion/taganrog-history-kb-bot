@@ -18,10 +18,10 @@
 (def ^:dynamic *quarters-index-tabtree* {})
 (def ^:dynamic *cached-response* {})
 
-(def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/wikimapia_houses.edn")
+(def WM-HOUSES-CACHED-EDN "/var/cache/projects/taganrog-history-bot/houses_wikimapia.edn")
 (def RESPONSE-CACHE "/var/cache/projects/taganrog-history-bot/response-cache.edn")
-(def WM-HOUSES-TABTREE "../taganrog-history-kb/_generated/wikimapia_houses.tree")
-(def WM-HOUSES-CSV "../taganrog-history-kb/_export/wikimapia_houses.csv")
+(def WM-HOUSES-TABTREE "../taganrog-history-kb/_generated/houses_wikimapia.tree")
+(def WM-HOUSES-CSV "../taganrog-history-kb/_export/houses_wikimapia.csv")
 (def WM-QUARTERS-TABTREE "../taganrog-history-kb/_generated/quarters.tree")
 ; (def PHOTO-REPOSITORY "../../../data/taganrog-history-kb-photo/")
 (def PHOTO-REPOSITORY "/home/denis/data/taganrog-history-kb-photo/")
