@@ -1,7 +1,7 @@
 blocks_graph
 	has_building owl/inverseOf:q
 	q a:rdf/Property owl/equivalentProperty:block
-	blocks section-hierarchy-relation:includes +section-hierarchy-relation:has_building
+	blocks hi-rel:includes +hi-rel:has_building
 		155
 			Украинский_41
 			Розы_Люксембург_21

@@ -19,7 +19,7 @@
 (def OLD-HOUSES-LIMIT 10)
 (def DEBUG-CHAT-ID "242892670")
 
-(def ^:dynamic *testing-mode* false)
+(def ^:dynamic *testing-mode* true)
 
 (defn process-command [message]
   (let [chat-id (str (get-in message [:chat :id]))

@@ -1,5 +1,5 @@
 countries
-	europe +section-hierarchy-relation:includes a:Continent
+	europe +hi-rel:includes a:Continent
 		russia +feature:"RUNNING" a:Country +a:dbpedia/City
 			Moscow start:1147 metro-stations:Таганская,Баррикадная,Речной_Вокзал 
 			Rostov-on-Don start:1749
@@ -8,11 +8,11 @@ countries
 			Oslo rdf/type:dbpedia/City start:1050
 		sweden a:Country +a:dbpedia/City
 			Stockholm start:1252 regions:"Gamlastan" rem:"The city known for ABBA and its beautiful rocky metro"
-	africa +section-hierarchy-relation:includes a:Continent 
+	africa +hi-rel:includes a:Continent 
 		egypt a:Country +a:dbpedia/City
 			Alexandria start:BC-331
 		tunisia a:Country +a:dbpedia/City
 			Carthagen start:-814
-	neverland +section-hierarchy-relation:includes a:Country +a:dbpedia/City
+	neverland +hi-rel:includes a:Country +a:dbpedia/City
 		20-й_город_Ёлки gold:100500
 	

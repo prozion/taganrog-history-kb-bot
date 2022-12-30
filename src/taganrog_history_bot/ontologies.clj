@@ -42,7 +42,7 @@
           tabtrees (map tabtree/parse-tab-tree tabtree-files)
           merged-tabtree (apply merge-ontology-parts tabtrees)
           rdf-string (rdf/tabtree->rdf merged-tabtree)
-          rdf-filepath (str RDF_DIR (name k) ".ttl")]
+          rdf-filepath (str RDF_DIR (name (or k "file")) ".ttl")]
       (io/write-to-file rdf-filepath rdf-string)
       rdf-filepath)))
 
