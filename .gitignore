@@ -12,3 +12,4 @@ pom.xml.asc
 /src/tgn_history_bot/token.clj
 nohup.out
 temp.edn
+checkouts
