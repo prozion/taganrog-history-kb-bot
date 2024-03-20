@@ -10,15 +10,15 @@
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [org.clojars.prozion.tabtree.utils :as tabtree-utils]
             [org.clojars.prozion.tabtree.rdf :as rdf]
-            [taganrog-history-bot.globals :refer :all]
-))
+            [taganrog-history-bot.globals :refer :all]))
+
 
 (def RDF_DIR "../taganrog-history-kb/_export/")
 
 (defn merge-ontology-parts [& ontology-tabtrees]
   (let [all-namespaces (apply
-                    merge
-                    (map #(tabtree-utils/get-subtree [:namespaces] %) ontology-tabtrees))
+                        merge
+                        (map #(tabtree-utils/get-subtree [:namespaces] %) ontology-tabtrees))
         all-namespaces (conj
                           all-namespaces
                           {:namespaces {:__id :namespaces :__children (keys (dissoc all-namespaces :namespaces))}})
@@ -31,8 +31,8 @@
                       (fn [[k v]]
                         (= (tabtree/get-item-parameter :a v) :tabtree/OntologyPart)))
                     keys)
-        merged-tabtrees (apply dissoc merged-tabtrees ontology-parts-root-ids )
-       ]
+        merged-tabtrees (apply dissoc merged-tabtrees ontology-parts-root-ids)]
+
     merged-tabtrees))
 
 (defn make-rdf-files [tabtrees-m]

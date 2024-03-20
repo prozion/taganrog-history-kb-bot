@@ -1,0 +1,20 @@
+{
+  :deps
+  {
+    clj-odysseus/clj-odysseus {:local/root "/home/denis/projects/clj_odysseus"}
+    clj-tabtree/clj-tabtree {:local/root "/home/denis/projects/clj_tabtree"}
+    org.clojure/clojure {:mvn/version "1.11.1"}
+    org.clojure/core.match {:mvn/version "1.0.1"}
+    org.clojure/data.json {:mvn/version "2.4.0"}
+    org.clojure/data.csv {:mvn/version "1.0.1"}
+    clj-http/clj-http {:mvn/version "3.12.3"}
+    ring/ring-core {:mvn/version "1.7.1"}
+    ring/ring-jetty-adapter {:mvn/version "1.7.1"}
+    compojure/compojure {:mvn/version "1.6.2"}
+    cheshire/cheshire {:mvn/version "5.10.2"}}
+
+  :aliases
+  {
+    :init
+    {
+      :main-opts ["-m" "taganrog-houses-bot.init"]}}}

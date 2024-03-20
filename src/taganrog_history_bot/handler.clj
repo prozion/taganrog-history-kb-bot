@@ -13,8 +13,8 @@
             [taganrog-history-bot.security :as security]
             [taganrog-history-bot.sparql :as sparql]
             [taganrog-history-bot.ontologies :as ontologies]
-            [taganrog-history-bot.city :as city]
-  ))
+            [taganrog-history-bot.city :as city]))
+
 
 (def OLD-HOUSES-LIMIT 10)
 (def DEBUG-CHAT-ID "242892670")
@@ -36,33 +36,33 @@
         "/help" (tb/send-text "Данный бот предназначен для работы с исторической базой знаний Таганрога. Доступно множество команд о зданиях города, таких как 'инфо', 'фото', 'старые' и др. <a href=\"https://github.com/prozion/taganrog-history-kb-bot#readme\">Подробнее</a>" chat-id :html)
         "/init" (do
                     (ontologies/init-db {
-                        :taganrog_facts
-                             ["../taganrog-history-kb/facts/_namespaces.tree"
-                              "../taganrog-history-kb/facts/quarters/quarters_houses.tree"
-                              "../taganrog-history-kb/facts/houses/houses_wikimapia.tree"
-                              "../taganrog-history-kb/facts/houses/years.tree"
-                              "../taganrog-history-kb/facts/houses/houses.tree"]
-                        :city_ontology
-                             [
-                              "../taganrog-history-kb/ontology/city.tree"
-                              "../taganrog-history-kb/ontology/city_sources.tree"
-                              "../taganrog-history-kb/ontology/city_time.tree"
-                              "../taganrog-history-kb/ontology/city_wikimapia.tree"]}
+                                         :taganrog_facts
+                                         ["~/data/taganrog_houses_kgr/facts/_namespaces.tree"
+                                          "~/data/taganrog_houses_kgr/facts/quarters/quarters_houses.tree"
+                                          "~/data/taganrog_houses_kgr/facts/houses/houses_wikimapia.tree"
+                                          "~/data/taganrog_houses_kgr/facts/houses/years.tree"
+                                          "~/data/taganrog_houses_kgr/facts/houses/houses.tree"]
+                                         :city_ontology
+                                         [
+                                          "~/data/taganrog_houses_kgr/ontology/city.tree"
+                                          "~/data/taganrog_houses_kgr/ontology/city_sources.tree"
+                                          "~/data/taganrog_houses_kgr/ontology/city_time.tree"
+                                          "~/data/taganrog_houses_kgr/ontology/city_wikimapia.tree"]}
                       :reasoner :owl-micro)
                     (if *testing-mode*
                       (--- "База знаний инициализирована")
-                      (tb/send-text "База знаний инициализирована." chat-id))
-                    )
+                      (tb/send-text "База знаний инициализирована." chat-id)))
+
         "/street" (let [street (some-> body security/clean-text)
                        ; canonical-street-name (city/get-canonical-address street)
-                       ans (sparql/list-houses-on-the-street (city/normalize-address street))
-                      ]
+                        ans (sparql/list-houses-on-the-street (city/normalize-address street))]
+
                     (if *testing-mode*
                       (--- ans)
                       (tb/send-text ans chat-id :html)))
         "/oldest" (let [limit (or (some-> body ->integer) OLD-HOUSES-LIMIT)
-                       ans (sparql/list-houses-by-their-age limit)
-                      ]
+                        ans (sparql/list-houses-by-their-age limit)]
+
                     (if *testing-mode*
                       (--- ans)
                       (tb/send-text ans chat-id :html)))
@@ -86,16 +86,16 @@
         (let [address (some-> body city/normalize-address)
                   ans (if (re-seq #".+\d+" address)
                         (sparql/get-house-info address)
-                        (sparql/list-houses-on-the-street address))
-                        ]
-                (if *testing-mode*
-                  (--- ans)
-                  (tb/send-text ans chat-id :html)))
-        )
-    (catch Throwable e
-      (if *testing-mode*
-        (--- (format "ошибка: %s" (.getMessage e)))
-        (tb/send-text (format "ошибка: %s" (.getMessage e)) chat-id))))))
+                        (sparql/list-houses-on-the-street address))]
+
+             (if *testing-mode*
+               (--- ans)
+               (tb/send-text ans chat-id :html))))
+
+     (catch Throwable e
+       (if *testing-mode*
+         (--- (format "ошибка: %s" (.getMessage e)))
+         (tb/send-text (format "ошибка: %s" (.getMessage e)) chat-id))))))
 
 (defroutes app
   (GET "/tgn-history"

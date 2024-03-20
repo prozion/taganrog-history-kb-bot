@@ -18,18 +18,18 @@
                  [org.apache.jena/jena-iri "3.2.0"]
                  [org.apache.jena/jena-tdb "3.2.0"]
                  [org.slf4j/slf4j-api "1.7.5"]
-                 [org.slf4j/slf4j-simple "1.6.4"]
-                ]
+                 [org.slf4j/slf4j-simple "1.6.4"]]
+
 
   :plugins [
             [lein-ring "0.12.6"]
-            [lein-ancient "0.6.15"]
+            [lein-ancient "0.6.15"]]
             ; [lein-immutant "2.1.0"]
-            ]
+
 
   :ring {:handler taganrog-history-bot.handler/app
-         :port 1979
-        }
+         :port 1979}
+
 
   :main taganrog-history-bot.handler
 

@@ -118,19 +118,19 @@
 
 (defn get-house-photo [address]
   (let [query-result (->>
-                  (query-sparql (get-db)
-                    (s/replace
-                      "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                      (query-sparql (get-db)
+                        (s/replace
+                          "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                        prefix owl: <http://www.w3.org/2002/07/owl#>
                        prefix : <https://purl.org/taganrog/city#>
                        SELECT ?photo
                        WHERE {
                          :<address-id> :фото ?photo
                        }"
-                       #"<address-id>"
-                       address))
-                  ts/result->hash-no-ns
-                  merge-query-results)
+                           #"<address-id>"
+                           address))
+                      ts/result->hash-no-ns
+                      merge-query-results)
         photo-html (let [photo-urls (query-result :photo)
                          photo-urls (and photo-urls (if (coll? photo-urls) photo-urls (list photo-urls)))]
                       (if photo-urls
@@ -164,12 +164,12 @@
                  #"<street>"
                  street))
             ts/result->hash-no-ns)
-            result (cond
-                      ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
-                      (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
-                      :else
-                         (format "<i>Есть информация про дома:</i>\n%s"
-                           (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))]
+          result (cond
+                    ; (not canonical-street-name) (format "%s: не удалось распознать как улицу в Таганроге" street)
+                    (not sparql-result) (format "%s: дома с этой улицы в базе отсутствуют" street)
+                    :else
+                       (format "<i>Есть информация про дома:</i>\n%s"
+                         (->> sparql-result (map :house) (map name) (sort city/compare-address) (map city/get-canonical-address) (s/join "\n"))))]
     result))
 
 (defn list-houses-by-their-age [limit]

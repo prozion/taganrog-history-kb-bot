@@ -11,8 +11,8 @@
             [taganrog-history-bot.globals :as g]
             [org.clojars.prozion.tabtree.tabtree :as tabtree]
             [org.clojars.prozion.tabtree.output :as output]
-            [clojure.java.shell :as shell]
-            ))
+            [clojure.java.shell :as shell]))
+
 
 (def ^:dynamic *index-tabtree* {})
 (def ^:dynamic *quarters-index-tabtree* {})
@@ -74,8 +74,8 @@
                 (fn [acc coors]
                   (concat acc [(coors "x") (coors "y")]))
                 []
-                polygon)
-            ]
+                polygon)]
+
           {:wm-id (res-edn "id")
            :wm-название (res-edn "title")
            :описание (-> description remove-urls s/trim handle-colon)
@@ -94,8 +94,8 @@
            :polygon polygon-sequence
            :фото photoes
            :wm-редактор (get-in res-edn ["edit_info" "user_name"])
-           :wm-число-комментариев (count (get-in res-edn ["comments"]))
-           })
+           :wm-число-комментариев (count (get-in res-edn ["comments"]))})
+
       (catch Exception e
         {:wm-id id :error (.getMessage e)})))
 
@@ -116,13 +116,13 @@
 (defn process-val [val]
   (cond
     (string? val)
-      (->>
-        val
-        (#(s/replace % "\"" "'"))
-        (#(s/replace % "\n" "\\n"))
-        (format "\"%s\""))
+    (->>
+      val
+      (#(s/replace % "\"" "'"))
+      (#(s/replace % "\n" "\\n"))
+      (format "\"%s\""))
     (coll? val)
-      (s/join "," (remove nil? (map process-val val)))
+    (s/join "," (remove nil? (map process-val val)))
     :else val))
 
 (defn clean-up [edn]
@@ -163,8 +163,8 @@
                                   acc2
                                   (name k)
                                   (process-val val)))))
-                    ""
-                    (sort-by-order (keys m) [:id :wm-название :wm-строка-улицы :wm-номер-дома :lat :lon :north :west :east :south :wm-число-комментариев :фото :wm-редактор :wm-категория :wm-url :url :oписание]))))
+                  ""
+                  (sort-by-order (keys m) [:id :wm-название :wm-строка-улицы :wm-номер-дома :lat :lon :north :west :east :south :wm-число-комментариев :фото :wm-редактор :wm-категория :wm-url :url :oписание]))))
     (str root-name "\n")
     (sort #(city/compare-addresses
               (get-object-name %1)
@@ -201,19 +201,19 @@
       (tabtree/parse-tab-tree WM-HOUSES-TABTREE)
       :delimeter "\t"
       :headers [
-        [:__id "адрес"]
-        [:wm-название "название"]
-        [:wm-категория "категория"]
-        [:wm-строка-улицы "улица"]
-        [:wm-номер-дома "номер дома"]
-        [:lat "широта"]
-        [:lon "долгота"]
-        [:id "wmid"]
-        [:wm-url "wikimapia"]
-        [:url "ссылки"]
-        [:wm-редактор "автор"]
-        [:описание "описание"]
-      ]))
+                [:__id "адрес"]
+                [:wm-название "название"]
+                [:wm-категория "категория"]
+                [:wm-строка-улицы "улица"]
+                [:wm-номер-дома "номер дома"]
+                [:lat "широта"]
+                [:lon "долгота"]
+                [:id "wmid"]
+                [:wm-url "wikimapia"]
+                [:url "ссылки"]
+                [:wm-редактор "автор"]
+                [:описание "описание"]]))
+
   true)
 
 ;;; PHOTO database
@@ -256,6 +256,5 @@
                 (doseq [filepath filepaths]
                   (do
                     (--- filepath
-                         (:exit (shell/sh "convert" filepath "-resize" "800x600>" filepath)))
+                         (:exit (shell/sh "convert" filepath "-resize" "800x600>" filepath)))))))))))))
                     ; (exit)
-                    ))))))))))
